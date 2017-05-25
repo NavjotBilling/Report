@@ -24,7 +24,7 @@ Partial Class AjaxPrinting
         DataAdapterNav.SelectCommand = SQLNav
 
         Dim Action As String = Request.Form("action")
-
+        '''''''
         'Printing Reports
         If Action = "BankRecPrint" Then PrintBankRec()
         If Action = "BankRecXML" Then XMLBankRec()
