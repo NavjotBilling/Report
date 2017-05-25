@@ -97,6 +97,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_general1').show();
         $('#table_general2').show();
         $('#table_sales').hide();
+        $('#Show_per').hide();
         $('#table_MultiPeriod').hide();
         if ($('[id$=DDL_Print_Report]').val() == '4') {
             $('#DetailReport').show();
@@ -112,6 +113,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#Date_DTSpan').hide();
         $('#table_sales').hide();
         $('#DetailReport').hide();
+        $('#Show_per').hide();
         $('#td_detail').show();
         $('#table_MultiPeriod').show();
         $('[id$=BTN_Print_Export]').hide();
@@ -141,6 +143,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_MultiPeriod').hide();
         $('#table_general2').hide();
         $('#Date_DTSpan').hide();
+        $('#Show_per').hide();
         $('#table_sales').show();
         $('[id$=BTN_Print_Export]').hide();
         if ($('[id$=DDL_Print_Details]').val() == 'Details') { printpopCustDD(); }
@@ -152,6 +155,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_general2').hide();
         $('#table_MultiPeriod').hide();
         $('#Date_DTSpan').hide();
+        $('#Show_per').hide();
         $('#table_sales').show();
         $('[id$=BTN_Print_Export]').hide();
         if ($('[id$=DDL_Print_Details]').val() == 'Details') { printpopVendDD(); }
@@ -166,11 +170,11 @@ $(document).on('change', '[id$=DDL_Print_Report]', function () {
     $("#DetailReport").hide();
     $("#showZeros").show();
     $("#MonthToMonth").hide();
-    if ($(this).val() == "1") { $('#PrintDate2Span').hide(); }//Balance Sheet Trial
-    if ($(this).val() == "2") { $("#MonthToMonth").show(); }//Profit and Loss sheet
-    if ($(this).val() == "3") { $("#td_detail").hide(); }//Detail Trial
-    if ($(this).val() == "4") { $("#td_detail").hide(); $("#DetailReport").show(); $("#showZeros").hide(); }//Detail Trial
-    if ($(this).val() == "5") { ('#PrintDate2Span').hide(); }//Detail Trial
+    if ($(this).val() == "1") { $('#PrintDate2Span').hide(); $('#Show_per').hide(); }//Balance Sheet Trial
+    if ($(this).val() == "2") { $("#MonthToMonth").show(); $('#Show_per').show(); }//Profit and Loss sheet
+    if ($(this).val() == "3") { $("#td_detail").hide(); $('#Show_per').hide();}//Detail Trial
+    if ($(this).val() == "4") { $("#td_detail").hide(); $("#DetailReport").show(); $("#showZeros").hide(); $('#Show_per').hide();}//Detail Trial
+    if ($(this).val() == "5") { ('#PrintDate2Span').hide(); $('#Show_per').hide(); }//Detail Trial
 });
 
 // Change on DDL_Print_Details
@@ -263,7 +267,7 @@ $(document).on('click', '[id$=BTN_Print_Print]', function (e) {
     }//Purchases Category is picked
     if ($('[id$=DDL_Print_Category]').val() == "10") {
         if ($('[id$=DDL_Print_MultiPeriod]').val() == '22') { printIncStateMulti(); }
-        else if ($('[id$=DDL_Print_MultiPeriod]').val() == '11') { PrintBalSheetMultiPer(); }
+        else if ($('[id$=DDL_Print_MultiPeriod]').val() == '11') { printBalSheetMulti(); }
         else {  }
     }
 });
@@ -272,12 +276,14 @@ $(document).on('click', '[id$=BTN_Print_Print]', function (e) {
 function printIncStateMulti() {
     var checked = "off"
     var roundChecked = "off"
+    var accno = "off"
+    if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
     if ($('[id$=RB_Monthly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMulti", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMulti", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -285,46 +291,25 @@ function printIncStateMulti() {
                 printReport()
             },
             error: function (data, status, other) { alert(other); }
-        });
-
-        
+        });       
     }
+    if ($('[id$=RB_Quarterly]').is(':checked')) { }
+    if ($('[id$=RB_Yearly]').is(':checked')) { }
 }
 
-function PrintBalSheetMultiPer() {
+function printBalSheetMulti() {
     var checked = "off"
     var roundChecked = "off"
+    var accno = "off"
+    if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
-    if ($('[id$=RB_Monthly]').is(':checked')) {
+    if ($('[id$=RB_Monthly]').is(':checked')) { }
+    if ($('[id$=RB_Quarterly]').is(':checked')) { }
+    if ($('[id$=RB_Yearly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMulti", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-            success: function (data, status, other) {
-                $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
-                printReport()
-            },
-            error: function (data, status, other) { alert(other); }
-        });
-
-
-    }
-    if ($('[id$=RB_Quarterly]').is(':checked')) {
-        var Q1ch = "off"
-        var Q2ch = "off"
-        var Q3ch = "off"
-        var Q4ch = "off"
-        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
-        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
-        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
-        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
-
-
-        $.ajax({
-            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "QuarBalSheetMulti", YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalanceMultiYearly", FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -335,6 +320,8 @@ function PrintBalSheetMultiPer() {
         });
     }
 }
+
+
 //function printIncome() {
 //    var checked = "off"
 //    var roundChecked = "off"
@@ -357,12 +344,17 @@ function PrintBalSheetMultiPer() {
 function printGeneral() {
     var checked = "off"
     var roundChecked = "off"
+    var roundChecked = "off"
+    var per = "off"
+    var accno = "off"
+    if ($('[id$=CB_Print_ShowPer]').is(':checked')) { per = "on" } else { per = "off" }
+    if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
     if ($('[id$=DDL_Print_Report]').val() == "1") {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalanceSheet", date1: $('[id$=TB_Print_Date1]').val(), date2: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalanceSheet", date1: $('[id$=TB_Print_Date1]').val(), date2: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').html(data)
@@ -379,7 +371,7 @@ function printGeneral() {
         else {
             $.ajax({
                 async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-                data: { action: "ProfitLoss", FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                data: { action: "ProfitLoss", FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Perce: per, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
                 success: function (data, status, other) {
                     $('#printinfo').removeClass('HideOnPage');
                     $('#printinfo').empty()
