@@ -42,7 +42,7 @@ Partial Class AjaxPrinting
         If Action = "IncStateMulti" Then PrintIncStateMultiRep()
         If Action = "QuarIncStateMulti" Then PrintQuarIncStateMultiRep()
         If Action = "YearIncStateMulti" Then PrintYearIncStateMultiRep()
-
+        '''''''''
         'If Action = " ThenIncomeStatementSingle" Then PrintIncomeStatementSingle()
         If Action = "Report" Then Report()
 
