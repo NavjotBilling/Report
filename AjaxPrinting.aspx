@@ -45,7 +45,7 @@
 
     <asp:Repeater ID="RPT_Payments" runat="server">
         <ItemTemplate>
-            <asp:HiddenField ID="HF_Lines" Value='<%# Eval("Cust_Vend_ID") & "~" & Eval("Cust_Vend_Name") & "~" & Eval("Amount", "{0:#,###.00}") & "~" & Eval("Transaction_Code") & "~" & Eval("Cheque_No") & "~" & Eval("Printed") & "~" & Eval("Memo") & "~" & Eval("Applied")  & "~" & Eval("Pay_Line_ID")  & "~" & Eval("fk_Act_ID")%>' runat="server" />
+            <asp:HiddenField ID="HF_Lines" Value='<%# Eval("Cust_Vend_ID") & "~" & Eval("Cust_Vend_Name") & "~" & Eval("Amount", "{0:#,###.00}") & "~" & Eval("Transaction_Code") & "~" & Eval("Cheque_No") & "~" & Eval("Printed") & "~" & Eval("Memo") & "~" & Eval("Applied") & "~" & Eval("Pay_Line_ID") & "~" & Eval("fk_Act_ID")%>' runat="server" />
         </ItemTemplate>
     </asp:Repeater>
 
@@ -291,7 +291,7 @@
     <asp:HiddenField ID="HF_PrintTitle" runat="server" />
     <asp:HiddenField ID="HF_PrintHeader" runat="server" />
     <asp:HiddenField ID="HF_PrintHeaderOnce" runat="server" />
-    <asp:HiddenField ID="HF_PrintPagePadding" Value ="25~10~25~10" runat="server" />
+    <asp:HiddenField ID="HF_PrintPagePadding" Value ="15~10~15~10" runat="server" />
         <asp:Repeater ID="RPT_PrintReports" runat="server">
             <ItemTemplate>
                 <asp:HiddenField ID="HF_PrintLines" Value='<%# Eval("Style1") & "~" & Eval("Field1") & "~" & Eval("Style2") & "~" & Eval("Field2") & "~" & Eval("Style3") & "~" & Eval("Field3") & "~" & Eval("Style4") & "~" & Eval("Field4") & "~" & Eval("Style5") & "~" & Eval("Field5") & "~" & Eval("Style6") & "~" & Eval("Field6") & "~" & Eval("Style7") & "~" & Eval("Field7") & "~" & Eval("Style8") & "~" & Eval("Field8") & "~" & Eval("Style9") & "~" & Eval("Field9") & "~" & Eval("Style10") & "~" & Eval("Field10") & "~" & Eval("Style11") & "~" & Eval("Field11") & "~" & Eval("Style12") & "~" & Eval("Field12") & "~" & Eval("Style13") & "~" & Eval("Field13") & "~" & Eval("Style14") & "~" & Eval("Field14") & "~" & Eval("Style15") & "~" & Eval("Field15")%>' runat="server" />
@@ -475,7 +475,7 @@
                                     <asp:Label ID="LBL_T_DetailLabel" Text="Detail Level:" CssClass="text9" runat="server" />
                                 </td>
                                  <td valign="top" align="left" style="padding: 15px 5px;">
-                                    <asp:DropDownList ID="DDL_Print_Level" CssClass="text9box" runat="server">
+                                    <asp:DropDownList ID="DDL_Print_Level" CssClass="text9box" runat="server" Height="24px" Width="72px">
                                         <asp:ListItem Text="1" Value="1"></asp:ListItem>
                                     </asp:DropDownList>
                                 </td>
@@ -488,6 +488,16 @@
                                  <td valign="top" align="left" style="padding: 15px 15px;">
                                     <asp:Label ID="LBL_T_20" CssClass="text9" Text="Show Zero's: " runat="server" />
                                     <asp:CheckBox runat="server" ID="CB_Print_ShowZeros" AutoPostBack="false" Text="" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top" align="right" style="padding: 15px 15px;" id="Show_per">
+                                    <asp:Label ID="Label32" CssClass="text9" Text="Show %: " runat="server" />
+                                    <asp:CheckBox ID="CB_Print_ShowPer" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
+                                </td>
+                                <td valign="top" align="left" style="padding: 15px 15px;" >
+                                    <asp:Label ID="Label33" CssClass="text9" Text="Show A/C No: " runat="server" />
+                                    <asp:CheckBox ID="CB_Print_Accno" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
                                 </td>
                             </tr>
                             <table>
