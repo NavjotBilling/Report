@@ -26,6 +26,7 @@ Partial Class AjaxPrinting
         Dim Action As String = Request.Form("action")
 
         'Printing Reports
+        '''''''
         If Action = "BankRecPrint" Then PrintBankRec()
         If Action = "BankRecXML" Then XMLBankRec()
         If Action = "BalanceSheet" Then PrintBalance()
