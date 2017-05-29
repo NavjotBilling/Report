@@ -1366,6 +1366,9 @@ Partial Class AjaxPrinting
         Dim Acc_No As String = Request.Form("Ac")
         Dim DenomString As String = ""
         Dim HF_Acc As String = ""
+
+        Dim RE As Decimal = 0
+
         If (Denom > 1) Then
             DenomString = "Denomination x" + Denom.ToString()
         End If
@@ -1389,13 +1392,17 @@ Partial Class AjaxPrinting
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja De Balance<br/>A Partir De " & AsAt & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span>"
         End If
 
-        Dim COA, Bal, Report As New DataTable
+        Dim COA, Bal, DataT, Report As New DataTable
         PNL_Summary.Visible = True
 
         SQLCommand.Connection = Conn
         DataAdapter.SelectCommand = SQLCommand
 
         Conn.Open()
+
+        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling Active, Cash, Exchange_Account_ID, Associated_Totalling From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 order by Account_No"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(DataT)
 
         If Language = 0 Then
             SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Totalling_Minus From ACC_GL_Accounts order by Account_No"
@@ -1423,6 +1430,43 @@ Partial Class AjaxPrinting
 
         Dim Padding As Integer = 0
         Dim Level As Integer = 1
+
+        ' Calculation for 39000 Current Retained Earning
+        RE = 0
+
+        For j = 0 To DataT.Rows.Count - 1
+
+            For jj = 0 To Bal.Rows.Count - 1
+
+                If DataT.Rows(j)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
+
+                    If DataT.Rows(j)("Account_Type").ToString = "4" Then
+
+                        If Bal.Rows(jj)("Balance").ToString = "" Then
+
+                        Else
+                            RE = RE + Bal.Rows(jj)("Balance")
+                        End If
+                    End If
+                    If DataT.Rows(j)("Account_Type").ToString = "5" Or DataT.Rows(j)("Account_Type").ToString = "6" Then
+
+                        If Bal.Rows(jj)("Balance").ToString = "" Then
+
+                        Else
+                            RE = RE - Bal.Rows(jj)("Balance")
+                        End If
+                        Exit For
+                    End If
+                End If
+            Next
+        Next
+
+        For j = 0 To COA.Rows.Count - 1
+            If COA.Rows(j)("Account_No") = "39000" Then COA.Rows(j)("Balance") = RE
+            COA.AcceptChanges()
+
+        Next
+
         For i = 0 To COA.Rows.Count - 1
             For ii = 0 To Bal.Rows.Count - 1
                 ' Copying the Balance value from table Bal to table COA
@@ -4359,15 +4403,13 @@ Partial Class AjaxPrinting
             Query1 = Query1 & ", (Select Top 1 Balance from ACC_GL where Transaction_Date <= '" & startDate1 & "' and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance" & j.ToString
             Query2 = Query2 & ", (Select Top 1 Balance from ACC_GL where gl1.fk_Account_ID = fk_Account_ID and Transaction_Date <= '" & startDate1 & "' order by Transaction_Date desc, rowID desc) as Balance" & j.ToString
             j += 1
-            startDate = startDate.AddMonths(1)
+            startDate = firstDate1.AddMonths(j + 1).AddDays(-1).ToString("yyyy-MM-dd")
             startDate1 = startDate.ToString("yyyy-MM-dd")
         End While
 
         SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(COA)
-
-
 
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query2 & " From ACC_GL As gl1"
         SQLCommand.Parameters.Clear()
@@ -4704,7 +4746,7 @@ Partial Class AjaxPrinting
         Dim HF_Acc As String = ""
 
         If (Qua_1 = "on") Then
-            Quarter(0) = "Sept-Nov"
+            Quarter(0) = "Q-1"
             Qua_1_StartDate = Year - 1 & "-09-01"
             Qua_1_EndDate = Year - 1 & "-11-30"
             Query1 = Query1 & ", (Select Top 1 Balance from ACC_GL where Transaction_Date <= '" & Qua_1_EndDate & "' and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance" & Q.ToString
@@ -4714,7 +4756,7 @@ Partial Class AjaxPrinting
             Q += 1
         End If
         If (Qua_2 = "on") Then
-            Quarter(1) = "Dec-Feb"
+            Quarter(1) = "Q-2"
             Qua_2_StartDate = Year - 1 & "-12-01"
             Qua_2_EndDate = Year & "-02-28"
             Query1 = Query1 & ", (Select Top 1 Balance from ACC_GL where Transaction_Date <= '" & Qua_2_EndDate & "' and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance" & Q.ToString
@@ -4727,7 +4769,7 @@ Partial Class AjaxPrinting
             Q += 1
         End If
         If (Qua_3 = "on") Then
-            Quarter(2) = "Mar-May"
+            Quarter(2) = "Q-3"
             Qua_3_StartDate = Year & "-03-01"
             Qua_3_EndDate = Year & "-05-31"
             Query1 = Query1 & ", (Select Top 1 Balance from ACC_GL where Transaction_Date <= '" & Qua_3_EndDate & "' and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance" & Q.ToString
@@ -4739,7 +4781,7 @@ Partial Class AjaxPrinting
             Q += 1
         End If
         If (Qua_4 = "on") Then
-            Quarter(3) = "Jun-Aug"
+            Quarter(3) = "Q-4"
             Qua_4_StartDate = Year & "-06-01"
             Qua_4_EndDate = Year & "-08-31"
             Query1 = Query1 & ", (Select Top 1 Balance from ACC_GL where Transaction_Date <= '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance" & Q.ToString

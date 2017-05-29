@@ -49,30 +49,35 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
 
             $(function () { $('[id$=TB_Print_Date1]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { pickedDate(dateText); } }); });
             $(function () { $('[id$=TB_Print_Date2]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { pickedDate2(dateText); } }); });
-            $(function () { $('[id$=Date_Print_From]').datepicker({ dateFormat: "yy-mm-dd" }); });
-            $(function () { $('[id$=Date_Print_To]').datepicker({ dateFormat: "yy-mm-dd" }); });
-            $(function () {
-                $('[id$=TB_Print_Date11]').datepicker({
-                    changeMonth: true,
-                    changeYear: true,
-                    showButtonPanel: true,
-                    dateFormat: 'yy-mm',
-                    onClose: function (dateText, inst) {
-                        $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-                    }
-                });
-            });
-            $(function () {
-                $('[id$=TB_Print_Date22]').datepicker({
-                    changeMonth: true,
-                    changeYear: true,
-                    showButtonPanel: true,
-                    dateFormat: 'yy-mm',
-                    onClose: function (dateText, inst) {
-                        $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-                    }
-                });
-            });
+            $(function () { $('[id$=Date_Print_From]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate(dateText); } }); });
+            $(function () { $('[id$=Date_Print_To]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate2(dateText); } }); });
+            //$(function () {
+            //    $('[id$=TB_Print_Date11]').datepicker({
+            //        changeMonth: true,
+            //        changeYear: true,
+            //        showButtonPanel: true,
+            //        dateFormat: 'mm-yy',
+                    
+            //        onClose: function (dateText, inst) {
+                        
+            //            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            //            choosenMonth(inst)
+            //        }
+            //    });
+            //});
+            //$(function () {
+            //    $('[id$=TB_Print_Date22]').datepicker({
+            //        changeMonth: true,
+            //        changeYear: true,
+            //        showButtonPanel: true,
+            //        dateFormat: 'mm-yy',
+            //        onClose: function (dateText, inst) {
+                        
+            //            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+            //            choosenMonth2(inst)
+            //        }
+            //    });
+            //});
             // Show only the Month and Year
             $('[id$=TB_Print_Date11]').focusin(function () {
                 $('.ui-datepicker-calendar').css("display", "none");
@@ -88,6 +93,61 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
             $('[id$=Date_Print_To]').val($('[id$=HF_Date_Today]').val())
             // Required for DDL_Print_Level
             populate_DDL_Print_Level($('[id$=HF_Date_Today]').val())
+
+            // Set Restriction on Date
+            function pickedDate(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date2]').val() == '' || $('[id$=TB_Print_Date2]').val() == 'To Date') { $('[id$=TB_Print_Date2]').val(date) }
+                    if ($('[id$=TB_Print_Date2]').val() < date) { $('[id$=TB_Print_Date2]').val(date) }
+                    if ($('[id$=TB_Print_Date1]').val() != 'From Date') { $('[id$=TB_Print_Date1]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date2]').val() != 'To Date') { $('[id$=TB_Print_Date2]').css('color', 'black'); }
+                }
+            }
+
+            function pickedDate2(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date1]').val() == '' || $('[id$=TB_Print_Date1]').val() == 'From Date') { $('[id$=TB_Print_Date1]').val($('[id$=TB_Print_Date2]').val()) }
+                    if (date < $('[id$=TB_Print_Date1]').val()) { $('[id$=TB_Print_Date2]').val($('[id$=TB_Print_Date1]').val()) }
+                    if ($('[id$=TB_Print_Date1]').val() != 'From Date') { $('[id$=TB_Print_Date1]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date2]').val() != 'To Date') { $('[id$=TB_Print_Date2]').css('color', 'black'); }
+                }
+            }
+
+            function choosenDate(date) {
+                if (date) {
+                    if ($('[id$=Date_Print_To]').val() == '' || $('[id$=Date_Print_To]').val() == 'To Date') { $('[id$=Date_Print_To]').val(date) }
+                    if ($('[id$=Date_Print_To]').val() < date) { $('[id$=Date_Print_To]').val(date) }
+                    if ($('[id$=Date_Print_From]').val() != 'From Date') { $('[id$=Date_Print_From]').css('color', 'black'); }
+                    if ($('[id$=Date_Print_To]').val() != 'To Date') { $('[id$=Date_Print_To]').css('color', 'black'); }
+                }
+            }
+
+            function choosenDate2(date) {
+                if (date) {
+                    if ($('[id$=Date_Print_From]').val() == '' || $('[id$=Date_Print_From]').val() == 'From Date') { $('[id$=Date_Print_From]').val($('[id$=Date_Print_To]').val()) }
+                    if (date < $('[id$=Date_Print_From]').val()) { $('[id$=Date_Print_To]').val($('[id$=Date_Print_From]').val()) }
+                    if ($('[id$=Date_Print_From]').val() != 'From Date') { $('[id$=Date_Print_From]').css('color', 'black'); }
+                    if ($('[id$=Date_Print_To]').val() != 'To Date') { $('[id$=Date_Print_To]').css('color', 'black'); }
+                }
+            }
+
+            function choosenMonth(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date22]').val() == '' || $('[id$=TB_Print_Date22]').val() == 'To Date') { $('[id$=TB_Print_Date22]').val(date) }
+                    if ($('[id$=TB_Print_Date22]').val() < date) { $('[id$=TB_Print_Date22]').val(date) }
+                    if ($('[id$=TB_Print_Date11]').val() != 'From Date') { $('[id$=TB_Print_Date11]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date22]').val() != 'To Date') { $('[id$=TB_Print_Date22]').css('color', 'black'); }
+                }
+            }
+
+            function choosenMonth2(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date11]').val() == '' || $('[id$=TB_Print_Date11]').val() == 'From Date') { $('[id$=TB_Print_Date11]').val($('[id$=TB_Print_Date22]').val()) }
+                    if (date < $('[id$=TB_Print_Date11]').val()) { $('[id$=TB_Print_Date22]').val($('[id$=TB_Print_Date11]').val()) }
+                    if ($('[id$=TB_Print_Date11]').val() != 'From Date') { $('[id$=TB_Print_Date11]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date22]').val() != 'To Date') { $('[id$=TB_Print_Date22]').css('color', 'black'); }
+                }
+            }
         },
         error: function (data, status, other) { alert(other); }
     });
@@ -119,7 +179,12 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_general1').show();
         $('#table_general2').show();
         $('#table_sales').hide();
-        $('#Show_per').hide();
+        if ($('[id$=DDL_Print_Report]').val() == '2') {
+            $('#Show_per').show();
+        }
+        else {
+            $('#Show_per').hide();
+        }        
         $('#table_MultiPeriod').hide();
         if ($('[id$=DDL_Print_Report]').val() == '4') {
             $('#DetailReport').show();
