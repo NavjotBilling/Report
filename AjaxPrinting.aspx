@@ -346,9 +346,10 @@
     </table>
 
 </asp:Panel>
-        <asp:Panel ID="PNL_XMLReport" Visible="false" runat="server" >
-            <asp:HiddenField ID="HF_XML" runat="server" />
-        </asp:Panel>
+
+<asp:Panel ID="PNL_XMLReport" Visible="false" runat="server" >
+    <asp:HiddenField ID="HF_XML" runat="server" />
+</asp:Panel>
 
         <asp:Panel ID="PNL_Report" Visible="false" runat="server" >
             <asp:HiddenField ID="HF_Date_Today" runat="server" />
@@ -380,6 +381,17 @@
                         <asp:DropDownList ID="DDL_Print_Category" CssClass="text9box" runat="server" Width="150px" />
                     </td>
                 </tr>
+                <%--Omar--%>
+                <tr>
+                    <td valign="top" align="left" style="padding:15px 15px;" id="td_language" colspan="3">
+                        <asp:Label ID="LBL_T_LangLabel" Text="Language:" runat="server" />
+                        <asp:DropDownList ID="DDL_Print_Language" CssClass="text9box" runat="server">
+                            <asp:ListItem Text="English" Value="0"></asp:ListItem>
+                            <asp:ListItem Text="Español" Value="1"></asp:ListItem>
+                        </asp:DropDownList>
+                    </td>
+                </tr>
+                <%--Omar--%>
                 <tr>
                     <td>
                         <table id="table_general1">
@@ -447,8 +459,6 @@
                                     <asp:DropDownList ID="DDL_Print_YearTo" CssClass="text9" runat="server" /></span>
                                 </td>
                             </tr>
-
-                            
                         </table>
                     </td>
                     <td>
@@ -461,7 +471,7 @@
                                     <asp:TextBox ID="TB_Print_AccNo" Style="text-align: center;" CssClass="text9box" Width="100px" runat="server" /></span>
                                 </td>
                             </tr>
-                             <tr>
+                            <tr>
                                 <td valign="top" align="right" style="padding: 18px 5px;">
                                     <asp:Label ID="Label31" Text="Denomination Level:" CssClass="text9" runat="server" />
                                 </td>
@@ -471,7 +481,7 @@
                             </tr>
 
                             <tr  id="td_detail">
-                                <td valign="top" align="Right" style="padding: 18px 5px;">
+                                <td valign="top" align="right" style="padding: 18px 5px;">
                                     <asp:Label ID="LBL_T_DetailLabel" Text="Detail Level:" CssClass="text9" runat="server" />
                                 </td>
                                  <td valign="top" align="left" style="padding: 15px 5px;">
@@ -481,7 +491,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td valign="top" align="Right" style="padding: 15px 15px;">
+                                <td valign="top" align="right" style="padding: 15px 15px;">
                                     <asp:Label ID="LBL_T_19" CssClass="text9" Text="Round: " runat="server" />
                                     <asp:CheckBox runat="server" ID="CB_Print_Round" AutoPostBack="false" Text="" />
                                  </td>
@@ -500,73 +510,45 @@
                                     <asp:CheckBox ID="CB_Print_Accno" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
                                 </td>
                             </tr>
-                            <table>
-                                <tr>
-                                    <td></td>
-                                </tr>
-                            </table>
                         </table>
                     </td>
                 </tr>
-                 
-            </table>
-
-            </td>
-            </tr>
-            <%-- <tr>
+                <tr>
                     <td>
-                        <table id="table_purchases" style="display:none;">
-
+                        <table id="table_sales" style="display:none;">
+                            <tr id="Report_AR">
+                                <td align="left" style="padding: 15px 15px;">
+                                    <asp:Label runat="server" Text="Type: " />
+                                    <asp:DropDownList ID="DDL_Print_Details" runat="server" CssClass="text9box" Width="120px">
+                                        <asp:ListItem Text="Summary" Value="Summary" />
+                                        <asp:ListItem Text="Details" Value="Details" />
+                                        <asp:ListItem Text="Report" Value="Report" />
+                                    </asp:DropDownList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="padding: 15px 15px; " valign="top">
+                                    <asp:Label runat="server" Text="Currency: " />
+                                    <asp:DropDownList ID="DDL_Print_Currency" runat="server" CssClass="text9box" Width="90px" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="left" style="padding: 15px 15px;" valign="top">
+                                    <asp:Label runat="server" Text="Date: " />
+                                    <asp:TextBox ID="Date_Print_From" runat="server" class="text9box" style="width:100px; text-align:center" />
+                                    <span id="Date_DTSpan">&nbsp;-&nbsp;
+                                    <asp:TextBox ID="Date_Print_To" runat="server" class="text9box" style="width:100px; text-align:center" />
+                                    </span></td>
+                            </tr>
+                            <tr>
+                                <td id="td_customer" align="left" style="padding: 15px 15px; display:none" valign="top">
+                                    <asp:Label runat="server" Text="Customer: " />
+                                    <asp:DropDownList ID="DDL_Print_Customer" runat="server" class="text9box" style="width:200px;" />
+                                </td>
+                            </tr>
                         </table>
                     </td>
-                </tr>--%>
-            </table>
-
-            </td>
-            </tr>
-            <tr>
-                <td>
-                    <table id="table_sales" style="display:none;">
-                        <tr id="Report_AR">
-                            <td align="left" style="padding: 15px 15px;">
-                                <asp:Label runat="server" Text="Type: " />
-                                <asp:DropDownList ID="DDL_Print_Details" runat="server" CssClass="text9box" Width="120px">
-                                    <asp:ListItem Text="Summary" Value="Summary" />
-                                    <asp:ListItem Text="Details" Value="Details" />
-                                    <asp:ListItem Text="Report" Value="Report" />
-                                </asp:DropDownList>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left" style="padding: 15px 15px; " valign="top">
-                                <asp:Label runat="server" Text="Currency: " />
-                                <asp:DropDownList ID="DDL_Print_Currency" runat="server" CssClass="text9box" Width="90px" />
-                            </td>
-                        </tr>
-                        <tr>
-                            <td align="left" style="padding: 15px 15px;" valign="top">
-                                <asp:Label runat="server" Text="Date: " />
-                                <asp:TextBox ID="Date_Print_From" runat="server" class="text9box" style="width:100px; text-align:center" />
-                                <span id="Date_DTSpan">&nbsp;-&nbsp;
-                                <asp:TextBox ID="Date_Print_To" runat="server" class="text9box" style="width:100px; text-align:center" />
-                                </span></td>
-                        </tr>
-                        <tr>
-                            <td id="td_customer" align="left" style="padding: 15px 15px; display:none" valign="top">
-                                <asp:Label runat="server" Text="Customer: " />
-                                <asp:DropDownList ID="DDL_Print_Customer" runat="server" class="text9box" style="width:200px;" />
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <%-- <tr>
-                    <td>
-                        <table id="table_purchases" style="display:none;">
-
-                        </table>
-                    </td>
-                </tr>--%>
+                </tr>
             </table>
 
             <table id="table button" style="float:right;">
