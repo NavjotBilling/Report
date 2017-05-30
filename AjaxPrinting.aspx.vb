@@ -2924,6 +2924,7 @@ Partial Class AjaxPrinting
 
     ' Income Statement Multiperiod Monthly
     Private Sub PrintMonthlyIncStateMultiPer()
+        Dim Language As Integer = Request.Form("language")
         Dim firstDate As String = Request.Form("FirstDate")
         Dim seconDate As String = Request.Form("SecondDate")
         Dim Acc_No As String = Request.Form("Ac")
@@ -2976,11 +2977,20 @@ Partial Class AjaxPrinting
             startDate = startDate.AddMonths(1)
             startDate1 = startDate.ToString("yyyy-MM")
         End While
+
         If Acc_No = "on" Then
             HF_Acc = "A/C No"
         End If
-        HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~Total"
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual)<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
+
         Dim COA, Report As New DataTable
         PNL_Summary.Visible = True
 
@@ -3002,15 +3012,29 @@ Partial Class AjaxPrinting
             startDate1 = startDate.ToString("yyyy-MM")
         End While
 
-        ' Getting Total Sales and Other Income (49999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+        If Language = 0 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
 
-        ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
+
+
 
         COA.Columns.Add("Padding", GetType(Integer))
         COA.Columns.Add("Level", GetType(Integer))
@@ -3315,6 +3339,7 @@ Partial Class AjaxPrinting
     ' Income Statement Multiperiod Quarterly
     Private Sub PrintQuarterlyIncStateMultiPer()
 
+        Dim Language As Integer = Request.Form("language")
         Dim Query1 As String = ""
         Dim Query2 As String = ""
         Dim Padding As Integer = 0
@@ -3430,8 +3455,15 @@ Partial Class AjaxPrinting
             HF_Acc = "A/C No"
         End If
 
-        HF_PrintHeader.Value = "text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~Total"
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Quarterly)<br/>From " + startDate + "  to " + seconDate + " <br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Quarterly)<br/>From " & startDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50 px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Trimestral)<br/>Desde " & startDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
+
         Dim COA, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
 
@@ -3439,15 +3471,28 @@ Partial Class AjaxPrinting
         DataAdapter.SelectCommand = SQLCommand
         Conn.Open()
 
-        ' Getting Total Sales and Other Income (49999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+        ' Translate the query
+        If Language = 0 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
 
-        ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
 
         COA.Columns.Add("Padding", GetType(Integer))
         COA.Columns.Add("Level", GetType(Integer))
@@ -3778,6 +3823,7 @@ Partial Class AjaxPrinting
     ' Income Statement Multiperiod Yearly
     Private Sub PrintYearlyIncStateMultiPer()
 
+        Dim Language As Integer = Request.Form("language")
         Dim Query1 As String = ""
         Dim Query2 As String = ""
         Dim Padding As Integer = 0
@@ -3861,51 +3907,6 @@ Partial Class AjaxPrinting
 
         date1 = FiscalDate
 
-
-        'd2 = firstDate
-        ' if date picked is current year, check if today's month is > fiscal month
-        'If seconDate >= DateTime.Now.Year Then
-        '    ' Check if today's date already pass the fiscal month
-        '    If DateTime.Now.Month <= Fiscal.Rows(0)("Fiscal_Year_Start_Month") Then
-        '        ' use today's date to compare with previous year
-        '        date1 = Now().ToString("yyyy-MM-dd")
-        '        d1 = date1
-        '        date2 = d1.AddDays(-1).AddYears(-1).ToString("yyyy-MM-dd")
-        '        dtemp = d1
-        '    Else
-        '        d1 = date1
-        '        date2 = d1.AddDays(-1).AddYears(-1).ToString("yyyy-MM-dd")
-        '        d1 = d1.AddDays(-1)
-        '        dtemp = d1
-        '    End If
-        'Else
-        '    d1 = date1
-        '    date2 = d1.AddDays(-1).AddYears(-1).ToString("yyyy-MM-dd")
-        '    d1 = d1.AddDays(-1)
-        '    dtemp = d1
-        'End If
-
-        'endDate = date1
-        'If YearCount = 1 Then
-        '    d2 = d1.AddYears(-1)
-        '    dtemp = d2
-
-        '    date2 = d2.ToString("yyyy-MM-dd")
-        'ElseIf YearCount = 2 Then
-        '    d2 = d1.AddYears(-1)
-        '    d3 = d2.AddYears(-1)
-        '    dtemp = d3
-
-        '    date2 = d2.ToString("yyyy-MM-dd")
-        '    date3 = d3.ToString("yyyy-MM-dd")
-        'End If
-
-        'startDate = dtemp.ToString("yyyy-MM-dd")
-
-
-
-
-
         Dim seconDate1 = seconDate
         startDate1 = FiscalDate
         startDate = startDate1
@@ -3931,8 +3932,15 @@ Partial Class AjaxPrinting
         If Acc_No = "on" Then
             HF_Acc = "A/C No"
         End If
-        HF_PrintHeader.Value = "text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~Total"
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (seconDate1 - 1).ToString + "-" + seconDate1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "Text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (seconDate1 - 1).ToString + "-" + seconDate1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "Text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50 px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Anual)<br/>Desde " & (firstDate - 1).ToString + "-" + firstDate & " a " & (seconDate1 - 1).ToString + "-" + seconDate1 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
 
         PNL_Summary.Visible = True
 
@@ -3957,15 +3965,28 @@ Partial Class AjaxPrinting
             endDate = endDate1
         End While
 
-        ' Getting Total Sales and Other Income (49999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+        ' Translation Query
+        If Language = 0 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
 
-        ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            ' Getting Total Sales and Other Income (49999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 and Account_No<'50000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+
+            ' Getting Total Direct Cost of Goods Sold (59999) and Total General & Administration Expenses (69999)
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query2 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 50000 order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
 
         COA.Columns.Add("Padding", GetType(Integer))
         COA.Columns.Add("Level", GetType(Integer))
@@ -4322,8 +4343,8 @@ Partial Class AjaxPrinting
 
         Dim Query1 As String = ""
         Dim Query2 As String = ""
-        'Dim AsAt As String = Request.Form("date1")
         Dim StyleFinish As String
+        Dim Language As Integer = Request.Form("language")
         Dim DetailLevel As Integer = Request.Form("detailLevel")
         Dim NoZeros As String = Request.Form("showZeros")
         Dim Denom As Int32 = Request.Form("Denom")
@@ -4384,9 +4405,19 @@ Partial Class AjaxPrinting
             HF_Acc = "A/C No"
         End If
 
-        HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~"
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Mensual)<br/>De " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
+
+        'HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~"
+
+        'HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         Dim COA, DataT, Bal, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
@@ -4407,9 +4438,20 @@ Partial Class AjaxPrinting
             startDate1 = startDate.ToString("yyyy-MM-dd")
         End While
 
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+        ' Translation
+        If Language = 0 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
+
+        'SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+        'SQLCommand.Parameters.Clear()
+        'DataAdapter.Fill(COA)
 
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query2 & " From ACC_GL As gl1"
         SQLCommand.Parameters.Clear()
@@ -4418,13 +4460,6 @@ Partial Class AjaxPrinting
         SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, Exchange_Account_ID, Associated_Totalling From ACC_GL_Accounts order by Account_No"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(DataT)
-
-        'SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, (Select Top 1 Balance from ACC_GL where Transaction_Date <= @date and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 10000 and Account_No<'40000' order by Account_No"
-        'SQLCommand.Parameters.Clear()
-
-        'SQLCommand.Parameters.AddWithValue("@date", AsAt)
-        'DataAdapter.Fill(Bal)
-
 
         COA.Columns.Add("BalanceString0", GetType(String))
         COA.Columns.Add("BalanceString1", GetType(String))
@@ -4533,20 +4568,6 @@ Partial Class AjaxPrinting
                             Next
                         Next
                     End If
-                    'If COA.Rows(i)("Totalling_Minus").ToString <> "" Then
-                    '    Account = COA.Rows(i)("Account_No").ToString
-                    '    Dim Plus() As String = COA.Rows(i)("Totalling_Minus").ToString.Split("+")
-                    '    For ii = 0 To Plus.Length - 1
-                    '        Dim Dash() As String = Plus(ii).Split("-")
-                    '        Dim Start As String = Trim(Dash(0))
-                    '        Dim Endd As String
-                    '        If Dash.Length = 1 Then Endd = Trim(Dash(0)) Else Endd = Trim(Dash(1))
-                    '        For iii = 0 To COA.Rows.Count - 1
-                    '            If Trim(COA.Rows(iii)("Account_No").ToString) > Endd Then Exit For
-                    '            If Trim(COA.Rows(iii)("Account_No").ToString) >= Start And COA.Rows(iii)("Account_Type") < 90 Then Total = Total - Val(COA.Rows(iii)("BeforeBalance").ToString.Replace(",", "").Replace("$", ""))
-                    '        Next
-                    '    Next
-                    'End If
 
                 Next
             Next
@@ -4692,6 +4713,7 @@ Partial Class AjaxPrinting
     ' Balance Sheet Multiperiod Quarterly
     Private Sub PrintQuarterlyBalSheetMultiPer()
 
+        Dim Language As Integer = Request.Form("language")
         Dim Query1 As String = ""
         Dim Query2 As String = ""
         Dim MonthCount As Integer = 3
@@ -4805,8 +4827,18 @@ Partial Class AjaxPrinting
         If Acc_No = "on" Then
             HF_Acc = "A/C No"
         End If
-        HF_PrintHeader.Value = "text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~"
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly)<br/>From " + startDate + "  to " + seconDate + " <br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly)<br/>From " & startDate & "  to " & seconDate & " <br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Trimestral)<br/>De " & startDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
+
+        'HF_PrintHeader.Value = "text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~"
+        'HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly)<br/>From " + startDate + "  to " + seconDate + " <br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         Dim COA, DataT, Bal, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
 
@@ -4817,13 +4849,20 @@ Partial Class AjaxPrinting
         'startDate1 = firstDate
         'startDate = firstDate
 
+        ' Translation
+        If Language = 0 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
 
-        ' Getting Total Sales and Other Income (49999)
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
-
-
+        'SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash" & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=0 and Account_ID > 1 And Account_No >= 10000 And Account_No<'40000' order by Account_No"
+        'SQLCommand.Parameters.Clear()
+        'DataAdapter.Fill(COA)
 
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query2 & " From ACC_GL As gl1"
         SQLCommand.Parameters.Clear()
@@ -4850,16 +4889,13 @@ Partial Class AjaxPrinting
         Balance = ""
         BalanceString = ""
 
-
-
-
         For col = 0 To Q - 1
-
 
             Balance = "Balance" + k.ToString
             BalanceString = "BalanceString" + k.ToString
             RE = 0
 
+            ' Calculation for Current Retained Earning (39000)
             For j = 0 To DataT.Rows.Count - 1
 
                 For jj = 0 To Bal.Rows.Count - 1
@@ -5096,6 +5132,7 @@ Partial Class AjaxPrinting
 
         Dim COA, Bal, Report, Fiscal As New DataTable
 
+        Dim Language As Integer = Request.Form("language")
         Dim firstDate As String = Request.Form("FirstDate")
         Dim secondDate As String = Request.Form("SecondDate")
         Dim Acc_No As String = Request.Form("Ac")
@@ -5168,13 +5205,23 @@ Partial Class AjaxPrinting
 
         ' Header
         For i = 0 To YearCount
-            StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
+            StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
         Next
         If Acc_No = "on" Then
             HF_Acc = "A/C No"
         End If
-        HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
-        HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+
+        ' Translate the Header and Title
+        If Language = 0 Then
+            HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        ElseIf Language = 1 Then
+            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Anual)<br/>De " & (firstDate - 1).ToString + "-" + firstDate & " a " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+        End If
+
+        'HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
+        'HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         PNL_Summary.Visible = True
 
@@ -5184,9 +5231,19 @@ Partial Class AjaxPrinting
             Query1 = Query1 & ", (Select top 1 Balance from ACC_GL where gl1.fk_Account_ID = fk_Account_ID and Transaction_Date <='" & startDate & "' order by Transaction_Date desc, rowID desc) as Balance" + i.ToString
         Next
 
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling From ACC_GL_Accounts order by Account_No"
-        SQLCommand.Parameters.Clear()
-        DataAdapter.Fill(COA)
+        If Language = 0 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling From ACC_GL_Accounts order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        ElseIf Language = 1 Then
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling From ACC_GL_Accounts order by Account_No"
+            SQLCommand.Parameters.Clear()
+            DataAdapter.Fill(COA)
+        End If
+
+        'SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling From ACC_GL_Accounts order by Account_No"
+        'SQLCommand.Parameters.Clear()
+        'DataAdapter.Fill(COA)
 
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query1 & " from ACC_GL gl1"
         SQLCommand.Parameters.Clear()

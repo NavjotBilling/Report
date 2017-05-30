@@ -51,33 +51,31 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
             $(function () { $('[id$=TB_Print_Date2]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { pickedDate2(dateText); } }); });
             $(function () { $('[id$=Date_Print_From]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate(dateText); } }); });
             $(function () { $('[id$=Date_Print_To]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate2(dateText); } }); });
-            //$(function () {
-            //    $('[id$=TB_Print_Date11]').datepicker({
-            //        changeMonth: true,
-            //        changeYear: true,
-            //        showButtonPanel: true,
-            //        dateFormat: 'mm-yy',
-                    
-            //        onClose: function (dateText, inst) {
-                        
-            //            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-            //            choosenMonth(inst)
-            //        }
-            //    });
-            //});
-            //$(function () {
-            //    $('[id$=TB_Print_Date22]').datepicker({
-            //        changeMonth: true,
-            //        changeYear: true,
-            //        showButtonPanel: true,
-            //        dateFormat: 'mm-yy',
-            //        onClose: function (dateText, inst) {
-                        
-            //            $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
-            //            choosenMonth2(inst)
-            //        }
-            //    });
-            //});
+            $(function () {
+                $('[id$=TB_Print_Date11]').datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: 'mm-yy',
+                    onClose: function (dateText, inst) {
+                        $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        //choosenMonth(inst)
+                    }
+                });
+            });
+            $(function () {
+                $('[id$=TB_Print_Date22]').datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true,
+                    dateFormat: 'mm-yy',
+                    onClose: function (dateText, inst) {
+                        $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        //choosenMonth2(inst)
+                    }
+                });
+            });
+
             // Show only the Month and Year
             $('[id$=TB_Print_Date11]').focusin(function () {
                 $('.ui-datepicker-calendar').css("display", "none");
@@ -345,13 +343,16 @@ function printIncStateMulti() {
     var checked = "off"
     var roundChecked = "off"
     var accno = "off"
+    var lang = 0 //0 is english, 1 is spanish
+
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
     if ($('[id$=RB_Monthly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiMonthly", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiMonthly", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -373,7 +374,7 @@ function printIncStateMulti() {
 
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiQuarterly", YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -386,7 +387,7 @@ function printIncStateMulti() {
     if ($('[id$=RB_Yearly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiYearly", FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -403,13 +404,16 @@ function printBalSheetMulti() {
     var checked = "off"
     var roundChecked = "off"
     var accno = "off"
+    var lang = 0 //0 is english, 1 is spanish
+
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
     if ($('[id$=RB_Monthly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiMonthly", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalSheetMultiMonthly", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -431,7 +435,7 @@ function printBalSheetMulti() {
 
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiQuarterly", YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno,Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalSheetMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno,Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -444,7 +448,7 @@ function printBalSheetMulti() {
     if ($('[id$=RB_Yearly]').is(':checked')) {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiYearly", FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
