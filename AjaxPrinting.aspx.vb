@@ -5155,6 +5155,7 @@ Partial Class AjaxPrinting
         Dim DenomString As String = ""
 
         Dim RE As Decimal = 0
+        Dim Asterix As String = "0"
 
         If (Denom > 1) Then
             DenomString = "Denomination x" + Denom.ToString()
@@ -5182,6 +5183,7 @@ Partial Class AjaxPrinting
                 date1 = Now().ToString("yyyy-MM-dd")
                 d1 = date1
                 dtemp = d1
+                Asterix = "1"
             Else
                 d1 = date1
                 d1 = d1.AddDays(-1)
@@ -5205,7 +5207,12 @@ Partial Class AjaxPrinting
 
         ' Header
         For i = 0 To YearCount
-            StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
+            'StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
+            If Asterix = "1" Then
+                StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy") & "(*)"
+            Else
+                StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
+            End If
         Next
         If Acc_No = "on" Then
             HF_Acc = "A/C No"
@@ -5213,7 +5220,7 @@ Partial Class AjaxPrinting
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
