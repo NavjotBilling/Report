@@ -56,7 +56,7 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
                     changeMonth: true,
                     changeYear: true,
                     showButtonPanel: true,
-                    dateFormat: 'mm-yy',
+                    dateFormat: 'yy-mm',
                     onClose: function (dateText, inst) {
                         $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
                         //choosenMonth(inst)
@@ -68,7 +68,7 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
                     changeMonth: true,
                     changeYear: true,
                     showButtonPanel: true,
-                    dateFormat: 'mm-yy',
+                    dateFormat: 'yy-mm',
                     onClose: function (dateText, inst) {
                         $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
                         //choosenMonth2(inst)
