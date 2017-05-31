@@ -424,11 +424,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td valign="top" align="center" style="padding: 15px 15px;">
-                                    <asp:Label Text="" CssClass="text9" runat="server" />
-                                    <asp:RadioButton ID="RB_Monthly" Style="text-align: center" Text="Monthly" CssClass="text9" GroupName="MultiPeriod" runat="server" checked/>
+                                <td valign="top" align="left" style="padding: 15px 15px;">
+                                    <asp:Label Text="Period: " CssClass="text9" runat="server" />
+                                    <asp:DropDownList ID="DDL_Print_Period" runat="server" CssClass="text9box" Width="150px"></asp:DropDownList>
+                                    <%--<asp:RadioButton ID="RB_Monthly" Style="text-align: center" Text="Monthly" CssClass="text9" GroupName="MultiPeriod" runat="server" checked/>
                                     <asp:RadioButton ID="RB_Quarterly" Style="text-align: center" Text="Quarterly" CssClass="text9" GroupName="MultiPeriod" runat="server" />
-                                    <asp:RadioButton ID="RB_Yearly" Style="text-align: center" Text="Yearly" CssClass="text9" GroupName="MultiPeriod" runat="server" />
+                                    <asp:RadioButton ID="RB_Yearly" Style="text-align: center" Text="Yearly" CssClass="text9" GroupName="MultiPeriod" runat="server" />--%>
                                 </td>
                             </tr>
                             <tr id="MonthlySelector">

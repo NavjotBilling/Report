@@ -41,11 +41,15 @@ Partial Class AjaxPrinting
         If Action = "SalesSummary" Then PrintSalesSummary()
 
         If Action = "IncStateMultiMonthly" Then PrintMonthlyIncStateMultiPer()
+        If Action = "IncStateMultiMonth-to-Month" Then PrintMonthToMonthIncStateMultiPer()
         If Action = "IncStateMultiQuarterly" Then PrintQuarterlyIncStateMultiPer()
+        If Action = "IncStateMultiQuarter-to-Quarter" Then PrintQuarterToQuarterIncStateMultiPer()
         If Action = "IncStateMultiYearly" Then PrintYearlyIncStateMultiPer()
 
         If Action = "BalSheetMultiMonthly" Then PrintMonthlyBalSheetMultiPer()
+        If Action = "BalSheetMultiMonth-to-Month" Then PrintMonthToMonthBalSheetMultiPer()
         If Action = "BalSheetMultiQuarterly" Then PrintQuarterlyBalSheetMultiPer()
+        If Action = "BalSheetMultiQuarter-to-Quarter" Then PrintQuarterToQuarterBalSheetMultiPer()
         If Action = "BalSheetMultiYearly" Then PrintYearlyBalSheetMultiPer()
 
         'If Action = "IncomeStatementSingle" Then PrintIncomeStatementSingle()
@@ -3336,6 +3340,11 @@ Partial Class AjaxPrinting
 
     End Sub
 
+    ' Income Statement Multiperiod Month-to-Month
+    Private Sub PrintMonthToMonthIncStateMultiPer()
+
+    End Sub
+
     ' Income Statement Multiperiod Quarterly
     Private Sub PrintQuarterlyIncStateMultiPer()
 
@@ -3815,6 +3824,11 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+
+    End Sub
+
+    ' Income Statement Multiperiod Quarter-to-Quarter
+    Private Sub PrintQuarterToQuarterIncStateMultiPer()
 
     End Sub
 
@@ -4708,6 +4722,11 @@ Partial Class AjaxPrinting
 
     End Sub
 
+    ' Balance Sheet Multiperiod Month-to-Month
+    Private Sub PrintMonthToMonthBalSheetMultiPer()
+
+    End Sub
+
     ' Balance Sheet Multiperiod Quarterly
     Private Sub PrintQuarterlyBalSheetMultiPer()
 
@@ -5121,6 +5140,11 @@ Partial Class AjaxPrinting
 
     End Sub
 
+    ' Balance Sheet Multiperiod Quarter-to-Quarter
+    Private Sub PrintQuarterToQuarterBalSheetMultiPer()
+
+    End Sub
+
     ' Balance Sheet Multiperiod Yearly
     Private Sub PrintYearlyBalSheetMultiPer()
 
@@ -5487,6 +5511,13 @@ Partial Class AjaxPrinting
             DDL_Print_YearTo.Items.Add(New ListItem((intYear - i - 1).ToString() + " - " + (intYear - i).ToString(), (intYear - i).ToString()))
         Next
 
+        ' Period Type
+        DDL_Print_Period.Items.Clear()
+        DDL_Print_Period.Items.Add(New ListItem("Monthly", "Monthly"))
+        DDL_Print_Period.Items.Add(New ListItem("Month-to-Month", "Month-to-Month"))
+        DDL_Print_Period.Items.Add(New ListItem("Quarterly", "Quarterly"))
+        DDL_Print_Period.Items.Add(New ListItem("Quarter-to-Quarter", "Quarter-to-Quarter"))
+        DDL_Print_Period.Items.Add(New ListItem("Yearly", "Yearly"))
 
         ' Adding Currency
         SQLCommand.CommandText = "Select * from ACC_Currency order by Local desc, Currency_ID"
