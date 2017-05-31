@@ -3712,8 +3712,6 @@ Partial Class AjaxPrinting
 
             If Q = 1 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-
-                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf Q = 2 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf Q = 3 Then
@@ -5082,7 +5080,7 @@ Partial Class AjaxPrinting
 
 
             Style = "text-align:left; font-size:8pt; padding: 3px 5px 3px " & Val(COA.Rows(i)("Padding").ToString) + 5 & "px; min-width: 2in; max-width: 2in;"
-            Style2 = "padding: 0px 0px 0px 0px; text-align:right; font-size:8pt; min-width:7px; max-width: 7px;"
+            Style2 = "padding: 0px 0px 0px 0px; text-align:right; font-size:8pt;"
             Dim Style3 As String = "padding: 3px 5px 3px 5px; text-align:left; font-size:8pt; min-width: 5px; max-width: 5px;"
             StyleFinish = ""
             If COA.Rows(i)("Account_Type") > 90 Then
@@ -5103,11 +5101,11 @@ Partial Class AjaxPrinting
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
             If Q = 1 Then
-                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2 + "min-width: 5in; max-width: 5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf Q = 2 Then
-                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2 + "min-width: 3.0in; max-width: 3.0in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2 + "min-width: 2.0in; max-width: 2.0in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf Q = 3 Then
-                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
 
 
