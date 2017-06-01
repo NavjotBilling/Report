@@ -1,10 +1,32 @@
-// REQUIREMENTS: 
-// BTN_Reports
-// <div id="PageCover" style="display:none;"></div>
-// <div id="popup_reports" style="display:none;"></div>
-// <div class="printinfo"></div>
-// <div id="ajaxData" style="display: none"></div>
+/**
+ * REQUIREMENTS:
+ * BTN_Reports
+ * <div id="PageCover" style="display:none;"></div>
+ * <div id="popup_reports" style="display:none;"></div>
+ * <div class="printinfo"></div>
+ * <div id="ajaxData" style="display: none"></div>
+ * <div id="tempData" style="display: none"></div>
+ */
 
+
+/**
+ * To add spanish translations
+ * On print.js, add these 2 lines to get the language:
+ *  var lang = 0 //0 is english, 1 is spanish
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1}
+ * and add "language: lang" to the data in the ajax call.
+ * On AjaxPrinting.aspx.vb, add this line to get the language:
+ *  Dim Language As Integer = Request.Form("language")
+ * then surround the lines where translation needs to happen with:
+ *  If Language = 0 Then
+        //English Version
+    ElseIf Language = 1 Then
+        //Spanish Version
+    End If
+ * For the SQL Commands, add "TranslatedName As Name" for 
+ * the spanish version 
+ */
+``
 // Report Button
 $(document).on('click', '[id$=BTN_Reports]', function (e) {
     e.preventDefault();
@@ -27,8 +49,8 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
 
             $(function () { $('[id$=TB_Print_Date1]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { pickedDate(dateText); } }); });
             $(function () { $('[id$=TB_Print_Date2]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { pickedDate2(dateText); } }); });
-            $(function () { $('[id$=Date_Print_From]').datepicker({ dateFormat: "yy-mm-dd" }); });
-            $(function () { $('[id$=Date_Print_To]').datepicker({ dateFormat: "yy-mm-dd" }); });
+            $(function () { $('[id$=Date_Print_From]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate(dateText); } }); });
+            $(function () { $('[id$=Date_Print_To]').datepicker({ dateFormat: "yy-mm-dd", onClose: function (dateText) { choosenDate2(dateText); } }); });
             $(function () {
                 $('[id$=TB_Print_Date11]').datepicker({
                     changeMonth: true,
@@ -37,6 +59,7 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
                     dateFormat: 'yy-mm',
                     onClose: function (dateText, inst) {
                         $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        //choosenMonth(inst)
                     }
                 });
             });
@@ -48,9 +71,11 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
                     dateFormat: 'yy-mm',
                     onClose: function (dateText, inst) {
                         $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+                        //choosenMonth2(inst)
                     }
                 });
             });
+
             // Show only the Month and Year
             $('[id$=TB_Print_Date11]').focusin(function () {
                 $('.ui-datepicker-calendar').css("display", "none");
@@ -66,6 +91,61 @@ $(document).on('click', '[id$=BTN_Reports]', function (e) {
             $('[id$=Date_Print_To]').val($('[id$=HF_Date_Today]').val())
             // Required for DDL_Print_Level
             populate_DDL_Print_Level($('[id$=HF_Date_Today]').val())
+
+            // Set Restriction on Date
+            function pickedDate(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date2]').val() == '' || $('[id$=TB_Print_Date2]').val() == 'To Date') { $('[id$=TB_Print_Date2]').val(date) }
+                    if ($('[id$=TB_Print_Date2]').val() < date) { $('[id$=TB_Print_Date2]').val(date) }
+                    if ($('[id$=TB_Print_Date1]').val() != 'From Date') { $('[id$=TB_Print_Date1]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date2]').val() != 'To Date') { $('[id$=TB_Print_Date2]').css('color', 'black'); }
+                }
+            }
+
+            function pickedDate2(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date1]').val() == '' || $('[id$=TB_Print_Date1]').val() == 'From Date') { $('[id$=TB_Print_Date1]').val($('[id$=TB_Print_Date2]').val()) }
+                    if (date < $('[id$=TB_Print_Date1]').val()) { $('[id$=TB_Print_Date2]').val($('[id$=TB_Print_Date1]').val()) }
+                    if ($('[id$=TB_Print_Date1]').val() != 'From Date') { $('[id$=TB_Print_Date1]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date2]').val() != 'To Date') { $('[id$=TB_Print_Date2]').css('color', 'black'); }
+                }
+            }
+
+            function choosenDate(date) {
+                if (date) {
+                    if ($('[id$=Date_Print_To]').val() == '' || $('[id$=Date_Print_To]').val() == 'To Date') { $('[id$=Date_Print_To]').val(date) }
+                    if ($('[id$=Date_Print_To]').val() < date) { $('[id$=Date_Print_To]').val(date) }
+                    if ($('[id$=Date_Print_From]').val() != 'From Date') { $('[id$=Date_Print_From]').css('color', 'black'); }
+                    if ($('[id$=Date_Print_To]').val() != 'To Date') { $('[id$=Date_Print_To]').css('color', 'black'); }
+                }
+            }
+
+            function choosenDate2(date) {
+                if (date) {
+                    if ($('[id$=Date_Print_From]').val() == '' || $('[id$=Date_Print_From]').val() == 'From Date') { $('[id$=Date_Print_From]').val($('[id$=Date_Print_To]').val()) }
+                    if (date < $('[id$=Date_Print_From]').val()) { $('[id$=Date_Print_To]').val($('[id$=Date_Print_From]').val()) }
+                    if ($('[id$=Date_Print_From]').val() != 'From Date') { $('[id$=Date_Print_From]').css('color', 'black'); }
+                    if ($('[id$=Date_Print_To]').val() != 'To Date') { $('[id$=Date_Print_To]').css('color', 'black'); }
+                }
+            }
+
+            function choosenMonth(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date22]').val() == '' || $('[id$=TB_Print_Date22]').val() == 'To Date') { $('[id$=TB_Print_Date22]').val(date) }
+                    if ($('[id$=TB_Print_Date22]').val() < date) { $('[id$=TB_Print_Date22]').val(date) }
+                    if ($('[id$=TB_Print_Date11]').val() != 'From Date') { $('[id$=TB_Print_Date11]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date22]').val() != 'To Date') { $('[id$=TB_Print_Date22]').css('color', 'black'); }
+                }
+            }
+
+            function choosenMonth2(date) {
+                if (date) {
+                    if ($('[id$=TB_Print_Date11]').val() == '' || $('[id$=TB_Print_Date11]').val() == 'From Date') { $('[id$=TB_Print_Date11]').val($('[id$=TB_Print_Date22]').val()) }
+                    if (date < $('[id$=TB_Print_Date11]').val()) { $('[id$=TB_Print_Date22]').val($('[id$=TB_Print_Date11]').val()) }
+                    if ($('[id$=TB_Print_Date11]').val() != 'From Date') { $('[id$=TB_Print_Date11]').css('color', 'black'); }
+                    if ($('[id$=TB_Print_Date22]').val() != 'To Date') { $('[id$=TB_Print_Date22]').css('color', 'black'); }
+                }
+            }
         },
         error: function (data, status, other) { alert(other); }
     });
@@ -97,7 +177,12 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_general1').show();
         $('#table_general2').show();
         $('#table_sales').hide();
-        $('#Show_per').hide();
+        if ($('[id$=DDL_Print_Report]').val() == '2') {
+            $('#Show_per').show();
+        }
+        else {
+            $('#Show_per').hide();
+        }        
         $('#table_MultiPeriod').hide();
         if ($('[id$=DDL_Print_Report]').val() == '4') {
             $('#DetailReport').show();
@@ -117,24 +202,24 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#td_detail').show();
         $('#table_MultiPeriod').show();
         $('[id$=BTN_Print_Export]').hide();
-        if ($('[id$=RB_Monthly]').is(':checked')) {
+        if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
             $('#MonthlySelector').show();
             $('#QuarterlySelector1').hide();
             $('#QuarterlySelector2').hide();
             $('#YearlySelector').hide();
         }
-        else if ($('[id$=RB_Quarterly]').is(':checked')) {
-            $('#MonthlySelector').hide();
-            $('#QuarterlySelector1').show();
-            $('#QuarterlySelector2').show();
-            $('#YearlySelector').hide();
-        }
-        else if ($('[id$=RB_Yearly]').is(':checked')) {
-            $('#MonthlySelector').hide();
-            $('#QuarterlySelector1').hide();
-            $('#QuarterlySelector2').hide();
-            $('#YearlySelector').show();
-        }
+        //else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') {
+        //    $('#MonthlySelector').hide();
+        //    $('#QuarterlySelector1').show();
+        //    $('#QuarterlySelector2').show();
+        //    $('#YearlySelector').hide();
+        //}
+        //else if ($('[id$=RB_Yearly]').is(':checked')) {
+        //    $('#MonthlySelector').hide();
+        //    $('#QuarterlySelector1').hide();
+        //    $('#QuarterlySelector2').hide();
+        //    $('#YearlySelector').show();
+        //}
     }
 
     // Sales is picked
@@ -197,46 +282,37 @@ $(document).on('change', '[id$=DDL_Print_Details]', function () {
     }
 });
 
-//$(document).on('change', '[id$=DDL_Print_MultiPeriod]', function () {
-
-//    // Multiperiod Balance Sheet
-//    if ($(this).val() == "11") {
-//        $('#td_customer').hide();
-//        $('#Date_DTSpan').hide();
-//    }
-//    // Multiperiod Income Statement
-//    else if ($(this).val() == '22') {
-//        $('#td_customer').show();
-//        $('#Date_DTSpan').hide();
-//        $('#spinner').show();
-//        if ($('[id$=DDL_Print_Category]').val() == "4") { printpopCustDD(); }//Sales Category is picked
-//        if ($('[id$=DDL_Print_Category]').val() == "3") { printpopVendDD(); }//Purchases Category is picked
-//    }
-//    else {
-//        $('#td_customer').hide();
-//        $('#Date_DTSpan').show();
-//    }
-//});
-
-$(document).on('change', '[id$=RB_Monthly], [id$=RB_Quarterly], [id$=RB_Yearly]', function () {
-    if ($('[id$=RB_Monthly]').is(':checked')) {
+$(document).on('change', '[id$=DDL_Print_Period]', function () {
+    if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
         $('#MonthlySelector').show();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
     }
-    else if ($('[id$=RB_Quarterly]').is(':checked')) { 
+    else if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
+        $('#MonthlySelector').hide();
+        $('#QuarterlySelector1').hide();
+        $('#QuarterlySelector2').hide();
+        $('#YearlySelector').hide();
+    }
+    else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') { 
         $('#MonthlySelector').hide();
         $('#QuarterlySelector1').show();
         $('#QuarterlySelector2').show();
         $('#YearlySelector').hide();
     }
-    else if ($('[id$=RB_Yearly]').is(':checked')) {
+    else if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
+        $('#MonthlySelector').hide();
+        $('#QuarterlySelector1').hide();
+        $('#QuarterlySelector2').hide();
+        $('#YearlySelector').hide();
+    }
+    else if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
         $('#MonthlySelector').hide();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').show();
-    }
+    }    
 });
 
 // Cancel Button
@@ -253,6 +329,8 @@ $(document).on('click', '[id$=BTN_Print_Cancel]', function (e) {
 $(document).on('click', '[id$=BTN_Print_Print]', function (e) {
     e.preventDefault()
     $('#spinner').show();
+    $('#printinfo').empty();
+    $('#tempData').empty();
 
     if ($('[id$=DDL_Print_Category]').val() == "1") { printGeneral() }//General Category is picked
     if ($('[id$=DDL_Print_Category]').val() == "2") {
@@ -272,18 +350,21 @@ $(document).on('click', '[id$=BTN_Print_Print]', function (e) {
     }
 });
 
-
+// Multiperiod Income Statement
 function printIncStateMulti() {
     var checked = "off"
     var roundChecked = "off"
     var accno = "off"
+    var lang = 0 //0 is english, 1 is spanish
+
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
-    if ($('[id$=RB_Monthly]').is(':checked')) {
+    if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMulti", FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiMonthly", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -293,23 +374,67 @@ function printIncStateMulti() {
             error: function (data, status, other) { alert(other); }
         });       
     }
-    if ($('[id$=RB_Quarterly]').is(':checked')) { }
-    if ($('[id$=RB_Yearly]').is(':checked')) { }
-}
-
-function printBalSheetMulti() {
-    var checked = "off"
-    var roundChecked = "off"
-    var accno = "off"
-    if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
-    if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
-    if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
-    if ($('[id$=RB_Monthly]').is(':checked')) { }
-    if ($('[id$=RB_Quarterly]').is(':checked')) { }
-    if ($('[id$=RB_Yearly]').is(':checked')) {
+    if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalanceMultiYearly", FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiMonth-to-Month", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') {
+        var Q1ch = "off"
+        var Q2ch = "off"
+        var Q3ch = "off"
+        var Q4ch = "off"
+        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
+        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
+        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
+        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
+        var Q1ch = "off"
+        var Q2ch = "off"
+        var Q3ch = "off"
+        var Q4ch = "off"
+        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
+        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
+        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
+        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "IncStateMultiQuarter-to-Quarter", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -321,25 +446,102 @@ function printBalSheetMulti() {
     }
 }
 
+// Multiperiod Balance Sheet
+function printBalSheetMulti() {
+    var checked = "off"
+    var roundChecked = "off"
+    var accno = "off"
+    var lang = 0 //0 is english, 1 is spanish
 
-//function printIncome() {
-//    var checked = "off"
-//    var roundChecked = "off"
-//    if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
-//    if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
-//    if ($('[id$=DDL_Print_Report]').val() == "1") {
-//        $.ajax({
-//            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-//            data: { action: "BalanceSheet", date1: $('[id$=TB_Print_Date1]').val(), date2: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-//            success: function (data, status, other) {
-//                $('#printinfo').removeClass('HideOnPage');
-//                $('#printinfo').html(data)
-//                printReport()
-//            },
-//            error: function (data, status, other) { alert(other); }
-//        });
-//    }
-//}
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
+    if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
+    if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
+    if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
+    if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "BalSheetMultiMonthly", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "BalSheetMultiMonth-to-Month", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') {
+        var Q1ch = "off"
+        var Q2ch = "off"
+        var Q3ch = "off"
+        var Q4ch = "off"
+        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
+        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
+        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
+        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "BalSheetMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno,Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
+        var Q1ch = "off"
+        var Q2ch = "off"
+        var Q3ch = "off"
+        var Q4ch = "off"
+        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
+        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
+        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
+        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "BalSheetMultiQuarter-to-Quarter", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+    if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
+        $.ajax({
+            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+            data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            success: function (data, status, other) {
+                $('#printinfo').removeClass('HideOnPage');
+                $('#printinfo').empty()
+                $('#printinfo').html(data)
+                printReport()
+            },
+            error: function (data, status, other) { alert(other); }
+        });
+    }
+}
+
 // Print for General
 function printGeneral() {
     var checked = "off"
@@ -347,6 +549,9 @@ function printGeneral() {
     var roundChecked = "off"
     var per = "off"
     var accno = "off"
+    var lang = 0 //0 is english, 1 is spanish
+
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_ShowPer]').is(':checked')) { per = "on" } else { per = "off" }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
@@ -354,7 +559,7 @@ function printGeneral() {
     if ($('[id$=DDL_Print_Report]').val() == "1") {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalanceSheet", date1: $('[id$=TB_Print_Date1]').val(), date2: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalanceSheet", language: lang, date1: $('[id$=TB_Print_Date1]').val(), date2: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').html(data)
@@ -371,7 +576,7 @@ function printGeneral() {
         else {
             $.ajax({
                 async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-                data: { action: "ProfitLoss", FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Perce: per, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                data: { action: "ProfitLoss", language: lang, FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Perce: per, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
                 success: function (data, status, other) {
                     $('#printinfo').removeClass('HideOnPage');
                     $('#printinfo').empty()
@@ -390,7 +595,7 @@ function printGeneral() {
         if (accNo != "") {
             $.ajax({
                 async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-                data: { action: "DetailTrialChart", StartDate: StartDate, EndDate: EndDate, accNo: accNo, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                data: { action: "DetailTrialChart", language: lang, StartDate: StartDate, EndDate: EndDate, accNo: accNo, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
                 success: function (data, status, other) {
                     $('#printinfo').removeClass('HideOnPage');
                     $('#printinfo').html(data)
@@ -406,7 +611,7 @@ function printGeneral() {
     else if ($('[id$=DDL_Print_Report]').val() == "3") {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "SummaryTrail", FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "SummaryTrail", language: lang, FirstDate: $('[id$=TB_Print_Date1]').val(), SecondDate: $('[id$=TB_Print_Date2]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -600,65 +805,88 @@ function printpopVendDD() {
 // Populate the data before print/export
 function printpopAR() {
     $('#spinner').show();
-
-    // Load the result to printinfo on masterpage
-    $('#printinfo').load('ACC_Accounts_Receivables.aspx [id$=PNL_Details]',
-        {
-            action: 'popList',
-            currency: $('[id$=DDL_Print_Currency]').val(),
-            type: $('[id$=DDL_Print_Details]').val(),
-            date: $('[id$=Date_Print_From]').val(),
-            cust: $('[id$=DDL_Print_Customer]').val()
+    // Temporary data to Print Sales/Purchase Summary/Detail
+    $.ajax({
+        async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+        data: {
+            action: "ShowPanelReport"
         },
-        function () {
-            $('[id$=LBL_Total]').text('$' + $("[id$=HF_TotalDet]").val());
-            dumpZeros()
-            if ($('[id$=DDL_Print_Details]').val() == 'Details') {
-                $('[id^=td_date]').show();
-                $('[id^=td_invoice]').show();
-                $('[id^=td_age]').show();
-            }
-            else if ($('[id$=DDL_Print_Details]').val() == 'Summary') {
-                $('[id^=td_date]').hide();
-                $('[id^=td_invoice]').hide();
-                $('[id^=td_age]').hide();
-            }
-            addPercentPaid()
-            pre_printAR()
-        }
-        );//End of Ajax
+        success: function (data, status, other) {
+            $('#tempData').html(data)
+            $('#tempData').show();
+            // Load the result to printinfo on masterpage
+            $('#printinfo').load('ACC_Accounts_Receivables.aspx [id$=PNL_Details]',
+                {
+                    action: 'popList',
+                    currency: $('[id$=DDL_Print_Currency]').val(),
+                    type: $('[id$=DDL_Print_Details]').val(),
+                    date: $('[id$=Date_Print_From]').val(),
+                    cust: $('[id$=DDL_Print_Customer]').val()
+                },
+                function () {
+                    $('[id$=LBL_Total]').text('$' + $("[id$=HF_TotalDet]").val());
+                    dumpZeros()
+                    if ($('[id$=DDL_Print_Details]').val() == 'Details') {
+                        $('[id^=td_date]').show();
+                        $('[id^=td_invoice]').show();
+                        $('[id^=td_age]').show();
+                    }
+                    else if ($('[id$=DDL_Print_Details]').val() == 'Summary') {
+                        $('[id^=td_date]').hide();
+                        $('[id^=td_invoice]').hide();
+                        $('[id^=td_age]').hide();
+                    }
+                    addPercentPaid();
+                    pre_printAR();
+                }
+            );//End of Ajax
+        },
+        error: function (data, status, other) { alert(other); }
+    });
+
 }
 
 // Populate the data before print/export
 function printpopAP() {
     $('#spinner').show();
-
-    // Load the result to printinfo on masterpage
-    $('#printinfo').load('ACC_Accounts_Payable.aspx [id$=PNL_Details]',
-        {
-            action: 'popList',
-            currency: $('[id$=DDL_Print_Currency]').val(),
-            type: $('[id$=DDL_Print_Details]').val(),
-            date: $('[id$=Date_Print_From]').val(),
-            cust: $('[id$=DDL_Print_Customer]').val()
+    // Temporary data to Print Sales/Purchase Summary/Detail
+    $.ajax({
+        async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+        data: {
+            action: "ShowPanelReport"
         },
-        function () {
-            $('[id$=LBL_Total]').text('$' + $("[id$=HF_TotalDet]").val());
-            dumpZeros()
-            if ($('[id$=DDL_Print_Details]').val() == 'Details') {
-                $('[id^=td_date]').show();
-                $('[id^=td_invoice]').show();
-                $('[id^=td_age]').show();
-            }
-            else if ($('[id$=DDL_Print_Details]').val() == 'Summary') {
-                $('[id^=td_date]').hide();
-                $('[id^=td_invoice]').hide();
-                $('[id^=td_age]').hide();
-            }
-            addPercentPaid()
-            pre_printAP()
-        }
-        );//End of Ajax
+        success: function (data, status, other) {
+            $('#tempData').html(data)
+            $('#tempData').show();
+            // Load the result to printinfo on masterpage
+            $('#printinfo').load('ACC_Accounts_Payable.aspx [id$=PNL_Details]',
+                {
+                    action: 'popList',
+                    currency: $('[id$=DDL_Print_Currency]').val(),
+                    type: $('[id$=DDL_Print_Details]').val(),
+                    date: $('[id$=Date_Print_From]').val(),
+                    cust: $('[id$=DDL_Print_Customer]').val()
+                },
+                function () {
+                    $('[id$=LBL_Total]').text('$' + $("[id$=HF_TotalDet]").val());
+                    dumpZeros()
+                    if ($('[id$=DDL_Print_Details]').val() == 'Details') {
+                        $('[id^=td_date]').show();
+                        $('[id^=td_invoice]').show();
+                        $('[id^=td_age]').show();
+                    }
+                    else if ($('[id$=DDL_Print_Details]').val() == 'Summary') {
+                        $('[id^=td_date]').hide();
+                        $('[id^=td_invoice]').hide();
+                        $('[id^=td_age]').hide();
+                    }
+                    addPercentPaid();
+                    pre_printAP();
+                }
+            );//End of Ajax
+        },
+        error: function (data, status, other) { alert(other); }
+    });// End of Ajax
 }
 
 // Printing AR
@@ -775,10 +1003,12 @@ $(document).on('change', '[id$=DDL_Print_Currency]', function () {
 
 // Print Purchase Report
 function printPurchReport() {
+    var lang = 0 //0 is english, 1 is spanish
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     console.log($('[id$=Date_Print_From]').val(), $('[id$=Date_Print_To]').val())
     $.ajax({
         async: true, type: 'POST', dataType: 'text', url: 'AjaxAccounting2.aspx',
-        data: { action: "SalesSummary", date1: $('[id$=Date_Print_From]').val(), date2: $('[id$=Date_Print_To]').val(), cur: $('[id$=DDL_Print_Currency]').val(), type: "P" },
+        data: { action: "SalesSummary", language: lang, date1: $('[id$=Date_Print_From]').val(), date2: $('[id$=Date_Print_To]').val(), cur: $('[id$=DDL_Print_Currency]').val(), type: "P" },
         success: function (data, status, other) {
             $('#printinfo').html(data)
             printReport()
@@ -789,9 +1019,11 @@ function printPurchReport() {
 
 // Print Sales Report
 function printSalesReport() {
+    var lang = 0 //0 is english, 1 is spanish
+    if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     $.ajax({
-        async: true, type: 'POST', dataType: 'text', url: 'AjaxAccounting2.aspx',
-        data: { action: "SalesSummary", date1: $('[id$=Date_Print_From]').val(), date2: $('[id$=Date_Print_To]').val(), cur: $('[id$=DDL_Print_Currency]').val(), type: "S" },
+        async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+        data: { action: "SalesSummary", language: lang, date1: $('[id$=Date_Print_From]').val(), date2: $('[id$=Date_Print_To]').val(), cur: $('[id$=DDL_Print_Currency]').val(), type: "S" },
         success: function (data, status, other) {
             $('#printinfo').html(data)
             printReport()
