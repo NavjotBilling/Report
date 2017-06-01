@@ -1031,3 +1031,11 @@ function printSalesReport() {
         error: function (data, status, other) { alert(other); }
     });
 }
+
+// Date Restriction
+$(document).on('change', '[id$=CB_Q1], [id$=CB_Q2], [id$=CB_Q3], [id$=CB_Q4]', function () {
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q3]').is(':checked')) { $('[id$=CB_Q4]').attr("disabled", true); } else { $('[id$=CB_Q4]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q3]').attr("disabled", true); } else { $('[id$=CB_Q3]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q3]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q2]').attr("disabled", true); } else { $('[id$=CB_Q2]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q3]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q1]').attr("disabled", true); } else { $('[id$=CB_Q1]').removeAttr("disabled"); }
+})
