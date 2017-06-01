@@ -432,17 +432,23 @@ function printIncStateMulti() {
         });
     }
     if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
-        $.ajax({
-            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-            success: function (data, status, other) {
-                $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
-                printReport()
-            },
-            error: function (data, status, other) { alert(other); }
-        });
+        // Year restriction
+        if ($('[id=DDL_Print_YearTo]').val() - $('[id=DDL_Print_YearFrom]').val() > 2) {
+            alert("Please select no more than 2 (Two) years in difference")
+        }
+        else {
+            $.ajax({
+                async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+                data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                success: function (data, status, other) {
+                    $('#printinfo').removeClass('HideOnPage');
+                    $('#printinfo').empty()
+                    $('#printinfo').html(data)
+                    printReport()
+                },
+                error: function (data, status, other) { alert(other); }
+            });
+        }        
     }
 }
 
@@ -528,17 +534,23 @@ function printBalSheetMulti() {
         });
     }
     if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
-        $.ajax({
-            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-            success: function (data, status, other) {
-                $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
-                printReport()
-            },
-            error: function (data, status, other) { alert(other); }
-        });
+        // Year restriction
+        if ($('[id=DDL_Print_YearTo]').val() - $('[id=DDL_Print_YearFrom]').val() > 2) {
+            alert("Please select no more than 2 (Two) years in difference")
+        }
+        else {
+            $.ajax({
+                async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+                data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                success: function (data, status, other) {
+                    $('#printinfo').removeClass('HideOnPage');
+                    $('#printinfo').empty()
+                    $('#printinfo').html(data)
+                    printReport()
+                },
+                error: function (data, status, other) { alert(other); }
+            });
+        }        
     }
 }
 
