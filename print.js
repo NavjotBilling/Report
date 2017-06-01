@@ -205,6 +205,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
             $('#MonthlySelector').show();
             $('#QuarterlySelector1').hide();
+            $('#MonthToMonthSelector').hide();
             $('#QuarterlySelector2').hide();
             $('#YearlySelector').hide();
         }
@@ -291,6 +292,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $('#MonthlySelector').hide();
+        $('#MonthToMonthSelector').show();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
@@ -377,7 +379,7 @@ function printIncStateMulti() {
     if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiMonth-to-Month", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiMonth-to-Month", language: lang, SecMonth: $('[id$=M_MList]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
