@@ -449,7 +449,14 @@
                              <tr id="MonthToMonthSelector">
                                 <td valign="top" align="center" style="padding: 15px 15px;">
                                     <asp:Label Text="Select Month: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID="M_MList" CssClass="text9" runat="server" />
+                                    <asp:DropDownList ID="M_MList" CssClass="text9" runat="server" /></br></br>
+                                    <asp:Label Text="No. of Periods: " CssClass="text9" runat="server" />
+                                   <asp:DropDownList ID="DDL_Go_Back" runat="server" CssClass="text9">
+                                        <asp:ListItem Text="2 Years" Value="2" /> 
+                                        <asp:ListItem Text="3 Years" Value="3" />
+                                        <asp:ListItem Text="4 Years" Value="4" />
+                                        <asp:ListItem Text="5 Years" Value="5" />
+                                    </asp:DropDownList>
                                 </td>
                             </tr>
                             <tr id="QuarterlySelector1">
@@ -464,6 +471,12 @@
                                     <asp:CheckBox ID="CB_Q2" CssClass="text9" Text="Dec-Feb" runat="server"/>
                                     <asp:CheckBox ID="CB_Q3" CssClass="text9" Text="Mar-May" runat="server"/>
                                     <asp:CheckBox ID="CB_Q4" CssClass="text9" Text="Jun-Aug" runat="server"/>
+                                </td>
+                            </tr>
+                            <tr id="QuarterToQuarterSelector">
+                                <td valign="top" align="center" style="padding: 15px 15px;">
+                                    <asp:Label Text="Select Quarter: " CssClass="text9" runat="server" />
+                                    <asp:DropDownList ID="DDL_Print_Q_To_Q" CssClass="text9" runat="server" />
                                 </td>
                             </tr>
                             <tr id="YearlySelector">

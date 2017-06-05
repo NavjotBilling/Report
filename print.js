@@ -286,6 +286,7 @@ $(document).on('change', '[id$=DDL_Print_Details]', function () {
 $(document).on('change', '[id$=DDL_Print_Period]', function () {
     if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
         $('#MonthlySelector').show();
+        $('#MonthToMonthSelector').hide();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
@@ -299,18 +300,21 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') { 
         $('#MonthlySelector').hide();
+        $('#MonthToMonthSelector').hide();
         $('#QuarterlySelector1').show();
         $('#QuarterlySelector2').show();
         $('#YearlySelector').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
         $('#MonthlySelector').hide();
+        $('#MonthToMonthSelector').hide();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
         $('#MonthlySelector').hide();
+        $('#MonthToMonthSelector').hide();
         $('#QuarterlySelector1').hide();
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').show();
@@ -379,7 +383,8 @@ function printIncStateMulti() {
     if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiMonth-to-Month", language: lang, SecMonth: $('[id$=M_MList]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: {
+                action: "IncStateMultiMonth-to-Month", language: lang, SecMonth: $('[id$=M_MList]').val(), goback: $('[id$=DDL_Go_Back]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
@@ -390,18 +395,18 @@ function printIncStateMulti() {
         });
     }
     if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') {
-        var Q1ch = "off"
-        var Q2ch = "off"
-        var Q3ch = "off"
-        var Q4ch = "off"
-        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
-        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
-        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
-        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+        //var Q1ch = "off"
+        //var Q2ch = "off"
+        //var Q3ch = "off"
+        //var Q4ch = "off"
+        //if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
+        //if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
+        //if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
+        //if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
 
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Q_To_Q]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
