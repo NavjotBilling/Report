@@ -292,7 +292,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
         $('#MonthToMonthSelector').hide();
-        $('#QuartertoQuarterSelector').hide();
+        $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
@@ -301,7 +301,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').hide();
         $('#MonthToMonthSelector').show();
-        $('#QuartertoQuarterSelector').hide();
+        $('#QuarterToQuarterSelector').hide();
         $('#Show_per').show();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') { 
@@ -310,7 +310,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#QuarterlySelector2').show();
         $('#YearlySelector').hide();
         $('#MonthToMonthSelector').hide();
-        $('#QuartertoQuarterSelector').hide();
+        $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
@@ -328,7 +328,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#QuarterlySelector2').hide();
         $('#YearlySelector').show();
         $('#MonthToMonthSelector').hide();
-        $('#QuartertoQuarterSelector').hide();
+        $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
     }    
 });

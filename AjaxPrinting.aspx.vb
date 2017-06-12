@@ -5593,8 +5593,8 @@ Partial Class AjaxPrinting
                 For jj = 0 To Bal.Rows.Count - 1
 
                     If DataT.Rows(j)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
-                        If DataT.Rows(j)("Account_Type").ToString = "4" Then RE = RE + Bal.Rows(jj)(Balance)
-                        If DataT.Rows(j)("Account_Type").ToString = "5" Or DataT.Rows(j)("Account_Type").ToString = "6" Then RE = RE - Bal.Rows(jj)(Balance)
+                        If DataT.Rows(j)("Account_Type").ToString = "4" And Not IsDBNull(Bal.Rows(jj)(Balance)) Then RE = RE + Bal.Rows(jj)(Balance)
+                        If (DataT.Rows(j)("Account_Type").ToString = "5" Or DataT.Rows(j)("Account_Type").ToString = "6") And Not IsDBNull(Bal.Rows(jj)(Balance)) Then RE = RE - Bal.Rows(jj)(Balance)
                         Exit For
                     End If
                 Next
@@ -7637,7 +7637,7 @@ Partial Class AjaxPrinting
         ' Period Type
         DDL_Print_Period.Items.Clear()
         DDL_Print_Period.Items.Add(New ListItem("Monthly", "Monthly"))
-        DDL_Print_Period.Items.Add(New ListItem("Month-to-Month"))
+        DDL_Print_Period.Items.Add(New ListItem("Month-to-Month", "Month-to-Month"))
         DDL_Print_Period.Items.Add(New ListItem("Quarterly", "Quarterly"))
         DDL_Print_Period.Items.Add(New ListItem("Quarter-to-Quarter", "Quarter-to-Quarter"))
         DDL_Print_Period.Items.Add(New ListItem("Yearly", "Yearly"))
