@@ -292,7 +292,7 @@ Partial Class AjaxPrinting
         ' Translate the Header
         If Language = 0 Then
             If Acc_No = "on" Then
-                HF_Acc = "A/C No"
+                HF_Acc = "Act No"
             End If
 
             If Percentage = "on" Then
@@ -302,7 +302,7 @@ Partial Class AjaxPrinting
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Income Statement<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             If Acc_No = "on" Then
-                HF_Acc = "A/C No"
+                HF_Acc = "Act No"
             End If
 
             If Percentage = "on" Then
@@ -1381,7 +1381,7 @@ Partial Class AjaxPrinting
 
         If DetailLevel = 0 Then DetailLevel = 7
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "Act No"
         End If
 
         ' Translate the Header and Title
@@ -2650,7 +2650,7 @@ Partial Class AjaxPrinting
         End Try
 
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "Act No"
         End If
 
         ' Translate the Header and Title
@@ -3008,12 +3008,16 @@ Partial Class AjaxPrinting
         Next
 
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
+
+
+            HF_PrintHeader.Value = "Text-align:left;font-size:8pt" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
@@ -3453,7 +3457,7 @@ Partial Class AjaxPrinting
 
         Dim Per_opt As String = ""
         If Acc_No = "on" Then
-            HF_Acc = "width:60px; ~A/C No"
+            HF_Acc = "width:60px; ~Act No"
         Else
             HF_Acc = "~"
         End If
@@ -3659,13 +3663,13 @@ Partial Class AjaxPrinting
                         Bal1 = 0
                     Else
                         Bal1 = COA.Rows(i)("Balance1")
-                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Bal0) * 100).ToString
+                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                         If j = 3 Then
                             If COA.Rows(i)("Balance2").ToString = "" Then
                                 Bal2 = 0
                             Else
                                 Bal2 = COA.Rows(i)("Balance2")
-                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Bal0) * 100).ToString
+                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                             End If
 
                         End If
@@ -3983,8 +3987,8 @@ Partial Class AjaxPrinting
         If (Qua_4 = "on") Then
             Quarter(3) = "Q-4"
 
-            Query1 = Query1 & ", ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID) - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID)) as Balance" & Q.ToString
-            Query2 = Query2 & ", ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID) - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID)) as Balance" & Q.ToString
+            Query1 = Query1 & ", ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID  AND Document_Type <> 'YEND') - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID AND Document_Type <> 'YEND')) as Balance" & Q.ToString
+            Query2 = Query2 & ", ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID AND Document_Type <> 'YEND') - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & Qua_4_StartDate & "' and '" & Qua_4_EndDate & "' and fk_Account_Id = Account_ID AND Document_Type <> 'YEND')) as Balance" & Q.ToString
             seconDate = Qua_4_EndDate
             If Q = 0 Then
                 startDate = Qua_4_StartDate
@@ -3992,24 +3996,39 @@ Partial Class AjaxPrinting
             Q += 1
         End If
 
-        Dim H_Quarter As String
+        Dim H_Quarter, H_Qua_1 As String
         Dim HF_Acc As String = ""
+        Dim Temp As Integer
         For l = 0 To 3
             If Quarter(l) <> "" Then
                 H_Quarter = Quarter(l) + Asterix
                 StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" + H_Quarter
+                If Temp < (Q - 1) Then
+                    If Temp < (Q - 2) Then
+                        H_Qua_1 = H_Qua_1 + Quarter(l) + ", "
+                    Else
+                        H_Qua_1 = H_Qua_1 + Quarter(l)
+                    End If
+                ElseIf Temp = (Q - 1) Then
+                    H_Qua_1 = H_Qua_1 + " and " + Quarter(l)
+                End If
+                Temp += 1
             End If
+
 
             'startDate1 = startDate.ToString("yyyy-MM")
         Next
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
+
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Quarterly)<br/>From " & startDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Quarterly)<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50 px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Trimestral)<br/>Desde " & startDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
@@ -4364,6 +4383,7 @@ Partial Class AjaxPrinting
 
     ' Income Statement Multiperiod Quarter-to-Quarter
     Private Sub PrintQuarterToQuarterIncStateMultiPer()
+
         Dim Language As Integer = Request.Form("language")
         Dim seconDate As String = Request.Form("Quarter")
         Dim words As String() = seconDate.Split(New Char() {" "c})
@@ -4463,12 +4483,7 @@ Partial Class AjaxPrinting
         Dim firstDate As Date = S_Date.AddYears(-(Goback - 1))
         Dim secondDate As Date = E_Date.AddYears(-(Goback - 1))
 
-        Dim startDate2 As String
-
-        Dim endDate2 As String
-
-        Dim Date1 As String
-        Dim Date2 As String
+        Dim startDate2, endDate2, Date1, Date2 As String
 
         Dim StyleFinish As String = ""
 
@@ -4478,9 +4493,7 @@ Partial Class AjaxPrinting
         Dim Profitloss2 As String = ""
         Dim TotalProfitloss As String = ""
 
-        Dim Bal0 As Decimal
-        Dim Bal1 As Decimal
-        Dim Bal2 As Decimal
+        Dim Bal0, Bal1, Bal2 As Decimal
 
         If (Denom > 1) Then
             DenomString = "Denomination x" + Denom.ToString()
@@ -4569,14 +4582,6 @@ Partial Class AjaxPrinting
         secondDate = E_Date.AddYears(-(Goback - 1))
         startDate2 = firstDate
         endDate2 = secondDate
-
-        'Dim d1 As String = "2016-02-01"
-        'Dim d2 As String = "2016-02-28"
-        'Dim d11 As String = "2016-03-01"
-        'Dim d22 As String = "2016-03-31"
-
-        'Query1 = Query1 + ", ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID) - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID)) as Balance0, ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID) - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID)) as Balance1"
-        'Query2 = Query2 + ", ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID) - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID)) as Balance0, ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID) - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID)) as Balance1"
 
         For j = 0 To Goback - 1
 
@@ -4689,7 +4694,6 @@ Partial Class AjaxPrinting
                 If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Then COA.Rows(i)(BalanceString) = ""
                 If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
             Next
-
             COA.AcceptChanges()
         Next
         ' End of for loop
@@ -4718,10 +4722,8 @@ Partial Class AjaxPrinting
             End If
             If (AlreadyDeleted = False) Then
                 If COA.Rows(i)("Level") > DetailLevel Then COA.Rows(i).Delete()
-
             End If
-
-        Next i
+        Next
 
         COA.AcceptChanges()
 
@@ -4745,13 +4747,13 @@ Partial Class AjaxPrinting
                         Bal1 = 0
                     Else
                         Bal1 = COA.Rows(i)("Balance1")
-                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Bal0) * 100).ToString
+                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                         If j = 3 Then
                             If COA.Rows(i)("Balance2").ToString = "" Then
                                 Bal2 = 0
                             Else
                                 Bal2 = COA.Rows(i)("Balance2")
-                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Bal0) * 100).ToString
+                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                             End If
 
                         End If
@@ -5020,15 +5022,17 @@ Partial Class AjaxPrinting
 
         End While
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "Text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (seconDate1 - 1).ToString + "-" + seconDate1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
-            HF_PrintHeader.Value = "Text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:50 px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
+            HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Anual)<br/>Desde " & (firstDate - 1).ToString + "-" + firstDate & " a " & (seconDate1 - 1).ToString + "-" + seconDate1 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
@@ -5502,12 +5506,14 @@ Partial Class AjaxPrinting
             startDate1 = startDate.ToString("yyyy-MM-dd")
         End While
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         ElseIf Language = 1 Then
@@ -5862,8 +5868,8 @@ Partial Class AjaxPrinting
 
         For j = 0 To GoPrevious - 1
 
-            If secondDate.ToString("yyyy-MM") = Now().ToString("yyyy-MM") Then
-                Date1 = Now().ToString("MMMM yyyy") + "(*)"
+            If endDate = Now().ToString("yyyy-MM") Then
+                Date1 = secondDate.ToString("MMMM yyyy") + "(*)"
             Else
                 Date1 = secondDate.ToString("MMMM yyyy")
             End If
@@ -5891,7 +5897,7 @@ Partial Class AjaxPrinting
 
         Dim Per_opt As String = ""
         If Acc_No = "on" Then
-            HF_Acc = "width:60px; ~A/C No"
+            HF_Acc = "width:60px; ~Act No"
         Else
             HF_Acc = "~"
         End If
@@ -6136,13 +6142,13 @@ Partial Class AjaxPrinting
                         Bal1 = 0
                     Else
                         Bal1 = COA.Rows(i)("Balance1")
-                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Bal0) * 100).ToString
+                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                         If j = 3 Then
                             If COA.Rows(i)("Balance2").ToString = "" Then
                                 Bal2 = 0
                             Else
                                 Bal2 = COA.Rows(i)("Balance2")
-                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Bal0) * 100).ToString
+                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                             End If
 
                         End If
@@ -6398,24 +6404,38 @@ Partial Class AjaxPrinting
 
 
 
-        Dim H_Quarter As String
+        Dim H_Quarter, H_Qua_1 As String
+        Dim Temp As Integer
         For l = 0 To 3
             If Quarter(l) <> "" Then
                 H_Quarter = Quarter(l) + Asterix
                 StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" + H_Quarter
+                If Temp < (Q - 1) Then
+                    If Temp < (Q - 2) Then
+                        H_Qua_1 = H_Qua_1 + Quarter(l) + ", "
+                    Else
+                        H_Qua_1 = H_Qua_1 + Quarter(l)
+                    End If
+                ElseIf Temp = (Q - 1) Then
+                    H_Qua_1 = H_Qua_1 + " and " + Quarter(l)
+                End If
+                Temp += 1
             End If
+
 
             'startDate1 = startDate.ToString("yyyy-MM")
         Next
 
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "text-align:left; width:10px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly)<br/>From " & startDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly)<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Trimestral)<br/>De " & startDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
@@ -6804,13 +6824,16 @@ Partial Class AjaxPrinting
 
 
         endDate = Qua_date2
-        Dim secondDate As Date = endDate.AddYears(-(GoPrevious - 1))
+        Dim E_date As Date = endDate
+        endDate = endDate.AddYears(-(GoPrevious - 1))
+        Dim secondDate As Date = endDate
+
 
 
         'Header
         For j = 0 To GoPrevious - 1
 
-            If endDate >= Today() Then
+            If E_date >= Today() Then
                 Date1 = "Q" & Qua_No & " " & secondDate.ToString("yyyy") & "(*)"
             Else
                 Date1 = "Q" & Qua_No & " " & secondDate.ToString("yyyy")
@@ -6830,20 +6853,18 @@ Partial Class AjaxPrinting
             secondDate = endDate2
         Next
 
-
-
         If (Denom > 1) Then
             DenomString = "Denomination x" + Denom.ToString()
         End If
 
-
-
+        ' Show Account No
         Dim Per_opt As String = ""
         If Acc_No = "on" Then
-            HF_Acc = "width:60px; ~A/C No"
+            HF_Acc = "width:60px; ~Act No"
         Else
             HF_Acc = "~"
         End If
+        ' Show Percentage
         If Show_Per = "on" Then
             Per_opt = "~Text-align: Right; width:80px; font-size:8pt~Percentage(%)"
         Else
@@ -7078,13 +7099,13 @@ Partial Class AjaxPrinting
                         Bal1 = 0
                     Else
                         Bal1 = COA.Rows(i)("Balance1")
-                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Bal0) * 100).ToString
+                        COA.Rows(i)("Per") = (((Bal1 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                         If j = 3 Then
                             If COA.Rows(i)("Balance2").ToString = "" Then
                                 Bal2 = 0
                             Else
                                 Bal2 = COA.Rows(i)("Balance2")
-                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Bal0) * 100).ToString
+                                COA.Rows(i)("Per") = (((Bal2 - Bal0) / Math.Abs(Bal0)) * 100).ToString
                             End If
 
                         End If
@@ -7150,7 +7171,7 @@ Partial Class AjaxPrinting
             ElseIf j = 2 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", style_per, "<span style=""" + StyleFinish + """ > " + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf j = 3 Then
-                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", style_per, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
 
             If COA.Rows(i)("Account_No").ToString = "39999" Then Exit For
@@ -7258,15 +7279,17 @@ Partial Class AjaxPrinting
             End If
         Next
         If Acc_No = "on" Then
-            HF_Acc = "A/C No"
+            HF_Acc = "width:60px; ~Act No"
+        Else
+            HF_Acc = "~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintHeader.Value = "Text-align: Left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
-            HF_PrintHeader.Value = "Text-align:left; width:50px; font-size:8pt~" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
+            HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
             HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Anual)<br/>De " & (firstDate - 1).ToString + "-" + firstDate & " a " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 

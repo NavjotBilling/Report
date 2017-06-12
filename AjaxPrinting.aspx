@@ -537,7 +537,7 @@
                                     <asp:CheckBox ID="CB_Print_ShowPer" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
                                 </td>
                                 <td valign="top" align="left" style="padding: 15px 15px;" >
-                                    <asp:Label ID="Label33" CssClass="text9" Text="Show A/C No: " runat="server" />
+                                    <asp:Label ID="Label33" CssClass="text9" Text="Show Act No: " runat="server" />
                                     <asp:CheckBox ID="CB_Print_Accno" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
                                 </td>
                             </tr>

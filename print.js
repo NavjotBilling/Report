@@ -379,6 +379,7 @@ function printIncStateMulti() {
     if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
     if ($('[id$=CB_Print_ShowZeros]').is(':checked')) { checked = "on" } else { checked = "off" }
+    if ($('[id$=CB_Print_ShowPer]').is(':checked')) { per = "on" } else { per = "off" }
     if ($('[id$=CB_Print_Round]').is(':checked')) { roundChecked = "on" } else { roundChecked = "off" }
     if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
         $.ajax({
@@ -386,9 +387,10 @@ function printIncStateMulti() {
             data: { action: "IncStateMultiMonthly", language: lang, FirstDate: $('[id$=TB_Print_Date11]').val(), SecondDate: $('[id$=TB_Print_Date22]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
+                $('#printinfo').empty();
+                $('#printinfo').html(data);
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });       
@@ -403,6 +405,7 @@ function printIncStateMulti() {
                 $('#printinfo').empty()
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
@@ -425,7 +428,8 @@ function printIncStateMulti() {
                $('#printinfo').removeClass('HideOnPage');
                $('#printinfo').empty()
                $('#printinfo').html(data)
-               printReport()
+               printReport();
+               $('#spinner').hide();
            },
            error: function (data, status, other) { alert(other); }
        });
@@ -440,6 +444,7 @@ function printIncStateMulti() {
                $('#printinfo').empty()
                $('#printinfo').html(data)
                printReport()
+               $('#spinner').hide();
            },
            error: function (data, status, other) { alert(other); }
        });
@@ -455,6 +460,7 @@ function printIncStateMulti() {
                $('#printinfo').empty()
                $('#printinfo').html(data)
                printReport()
+               $('#spinner').hide();
            },
            error: function (data, status, other) { alert(other); }
        });
@@ -573,6 +579,7 @@ function printGeneral() {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
@@ -591,6 +598,7 @@ function printGeneral() {
                     $('#printinfo').empty()
                     $('#printinfo').html(data)
                     printReport()
+                    $('#spinner').hide();
                 },
                 error: function (data, status, other) { alert(other); }
             });
@@ -609,6 +617,7 @@ function printGeneral() {
                     $('#printinfo').removeClass('HideOnPage');
                     $('#printinfo').html(data)
                     printReport()
+                    $('#spinner').hide();
                 },
                 error: function (data, status, other) { alert(other); }
             });
@@ -626,6 +635,7 @@ function printGeneral() {
                 $('#printinfo').empty()
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
