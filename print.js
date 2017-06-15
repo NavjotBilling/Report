@@ -26,12 +26,12 @@
  * For the SQL Commands, add "TranslatedName As Name" for 
  * the spanish version 
  */
-``
+
 // Report Button
 $(document).on('click', '[id$=BTN_Reports]', function (e) {
     e.preventDefault();
-    $('#po_param').hide();
-    $('#table_print').show();
+    // $('#po_param').hide();
+    // $('#table_print').show();
     //$('[id$=TB_Print_Date1]').val($('[id$=TB_Date]').val())
     //$('[id$=TB_Print_Date2]').val($('[id$=TB_Date]').val())
     $('[id$=LBL_T_Title]').text('Print Reports')
@@ -178,6 +178,8 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#table_general1').show();
         $('#table_general2').show();
         $('#table_sales').hide();
+        $('#typeMulti').hide();
+        $('#typestandard').show();
         if ($('[id$=DDL_Print_Report]').val() == '2') {
             $('#Show_per').show();
         }
@@ -188,6 +190,7 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         if ($('[id$=DDL_Print_Report]').val() == '4') {
             $('#DetailReport').show();
             $('#td_detail').hide();
+            $('#typeMulti').hide();
         }
         $('[id$=BTN_Print_Export]').hide();
     }
@@ -202,6 +205,8 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#Show_per').hide();
         $('#td_detail').show();
         $('#table_MultiPeriod').show();
+        $('#typestandard').hide();
+        $('#typeMulti').show();
         $('[id$=BTN_Print_Export]').hide();
         if ($('[id$=DDL_Print_Period]').val() == 'Monthly') {
             $('#MonthlySelector').show();
@@ -210,6 +215,9 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
             $('#YearlySelector').hide();
             $('#MonthToMonthSelector').hide();
             $('#QuarterToQuarterSelector').hide();
+            $('#typeMulti').show();
+            $('#typestandard').hide();
+            $('#dropdownlist').hide();
         }
         //else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') {
         //    $('#MonthlySelector').hide();
@@ -234,6 +242,8 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#Show_per').hide();
         $('#table_sales').show();
         $('[id$=BTN_Print_Export]').hide();
+        $('#typestandard').hide();
+        $('#typeMulti').hide();
         if ($('[id$=DDL_Print_Details]').val() == 'Details') { printpopCustDD(); }
     }
     
@@ -246,6 +256,8 @@ $(document).on('change', '[id$=DDL_Print_Category]', function () {
         $('#Show_per').hide();
         $('#table_sales').show();
         $('[id$=BTN_Print_Export]').hide();
+        $('#typestandard').hide();
+        $('#typeMulti').hide();
         if ($('[id$=DDL_Print_Details]').val() == 'Details') { printpopVendDD(); }
     }
 });
@@ -258,7 +270,7 @@ $(document).on('change', '[id$=DDL_Print_Report]', function () {
     $("#DetailReport").hide();
     $("#showZeros").show();
     $("#MonthToMonth").hide();
-    if ($(this).val() == "1") { $('#PrintDate2Span').hide(); $('#Show_per').hide(); }//Balance Sheet Trial
+    if ($(this).val() == "1") { $('#PrintDate2Span').hide(); $('#Show_per').hide(); $('#typestandard').show(); $('#typeMulti').hide(); }//Balance Sheet Trial
     if ($(this).val() == "2") { $("#MonthToMonth").show(); $('#Show_per').show(); }//Profit and Loss sheet
     if ($(this).val() == "3") { $("#td_detail").hide(); $('#Show_per').hide();}//Detail Trial
     if ($(this).val() == "4") { $("#td_detail").hide(); $("#DetailReport").show(); $("#showZeros").hide(); $('#Show_per').hide();}//Detail Trial
@@ -294,6 +306,8 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#MonthToMonthSelector').hide();
         $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
+        $('#dropdownlist').hide();
+        $('#typestandard').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $('#MonthlySelector').hide();
@@ -303,6 +317,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#MonthToMonthSelector').show();
         $('#QuarterToQuarterSelector').hide();
         $('#Show_per').show();
+        $('#dropdownlist').show();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarterly') { 
         $('#MonthlySelector').hide();
@@ -312,6 +327,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#MonthToMonthSelector').hide();
         $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
+        $('#dropdownlist').hide();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
         $('#MonthlySelector').hide();
@@ -321,6 +337,7 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#MonthToMonthSelector').hide();
         $('#QuarterToQuarterSelector').show();
         $('#Show_per').show();
+        $('#dropdownlist').show();
     }
     else if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
         $('#MonthlySelector').hide();
@@ -330,15 +347,16 @@ $(document).on('change', '[id$=DDL_Print_Period]', function () {
         $('#MonthToMonthSelector').hide();
         $('#QuarterToQuarterSelector').hide();
         $('#Show_per').hide();
+        $('#dropdownlist').hide();
     }    
 });
 
 // Cancel Button
 $(document).on('click', '[id$=BTN_Print_Cancel]', function (e) {
     e.preventDefault()
-    $('#po_param').show()
-    $('#table_print').hide()
-    $('[id$=LBL_T_Title]').text('Chart of Accounts')
+    // $('#po_param').show()
+    // $('#table_print').hide();
+    // $('[id$=LBL_T_Title]').text('Chart of Accounts')
     $('#popup_reports').hide();
     $('#PageCover').hide();
 });
@@ -364,7 +382,6 @@ $(document).on('click', '[id$=BTN_Print_Print]', function (e) {
     if ($('[id$=DDL_Print_Category]').val() == "10") {
         if ($('[id$=DDL_Print_MultiPeriod]').val() == '22') { printIncStateMulti(); }
         else if ($('[id$=DDL_Print_MultiPeriod]').val() == '11') { printBalSheetMulti(); }
-        else {  }
     }
 });
 
@@ -375,6 +392,7 @@ function printIncStateMulti() {
     var accno = "off"
     var per = "off"
     var lang = 0 //0 is english, 1 is spanish
+    var counter = 0
 
     if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
@@ -395,7 +413,7 @@ function printIncStateMulti() {
             error: function (data, status, other) { alert(other); }
         });       
     }
-   if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
+    if ($('[id$=DDL_Print_Period]').val() == 'Month-to-Month') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
             data: {
@@ -416,29 +434,46 @@ function printIncStateMulti() {
        var Q2ch = "off"
        var Q3ch = "off"
        var Q4ch = "off"
-       if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
-       if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
-       if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
-       if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+       if ($('[id$=CB_Q1]').is(':checked')) {
+           Q1ch = "on"
+           counter += 1
+       } else { Q1ch = "off" }
+       if ($('[id$=CB_Q2]').is(':checked')) {
+           Q2ch = "on"
+           counter += 1
+       } else { Q2ch = "off" }
+       if ($('[id$=CB_Q3]').is(':checked')) {
+           Q3ch = "on"
+           counter += 1
+       } else { Q3ch = "off" }
+       if ($('[id$=CB_Q4]').is(':checked')) {
+           Q4ch = "on"
+           counter += 1
+       } else { Q4ch = "off" }
 
-       $.ajax({
-           async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-           data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-           success: function (data, status, other) {
-               $('#printinfo').removeClass('HideOnPage');
-               $('#printinfo').empty()
-               $('#printinfo').html(data)
-               printReport();
-               $('#spinner').hide();
-           },
-           error: function (data, status, other) { alert(other); }
-       });
+       // Quarter Restriction
+       if (counter > 3) { alert("Please select no more than 3 quarters to print") }
+       else if (counter < 2) { alert("Please select at least 2 quarters to print") }
+       else {
+           $.ajax({
+               async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+               data: { action: "IncStateMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+               success: function (data, status, other) {
+                   $('#printinfo').removeClass('HideOnPage');
+                   $('#printinfo').empty()
+                   $('#printinfo').html(data)
+                   printReport();
+                   $('#spinner').hide();
+               },
+               error: function (data, status, other) { alert(other); }
+           });
+       }       
    }
    if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
 
        $.ajax({
            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-           data: { action: "IncStateMultiQuarter-to-Quarter", language: lang, Quarter: $('[id$=DDL_Print_Q]').val(), goback: $('[id$=DDL_Print_PreviousQ]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Percentage: per, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+           data: { action: "IncStateMultiQuarter-to-Quarter", language: lang, Quarter: $('[id$=DDL_Print_Q]').val(), goback: $('[id$=DDL_Print_Previous]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Percentage: per, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
            success: function (data, status, other) {
                $('#printinfo').removeClass('HideOnPage');
                $('#printinfo').empty()
@@ -452,18 +487,27 @@ function printIncStateMulti() {
    }
 
    if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
-       $.ajax({
-           async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-           data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-           success: function (data, status, other) {
-               $('#printinfo').removeClass('HideOnPage');
-               $('#printinfo').empty()
-               $('#printinfo').html(data)
-               printReport()
-               $('#spinner').hide();
-           },
-           error: function (data, status, other) { alert(other); }
-       });
+       // Year restriction
+       if ($('[id$=DDL_Print_YearTo]').val() - $('[id$=DDL_Print_YearFrom]').val() > 2) {
+           alert("Please select no more than 2 (Two) years in difference")
+       }
+       else if ($('[id$=DDL_Print_YearTo]').val() < $('[id$=DDL_Print_YearFrom]').val()) {
+           alert("The year selected is not correct. Please change the year selection")
+       }
+       else {
+           $.ajax({
+               async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+               data: { action: "IncStateMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+               success: function (data, status, other) {
+                   $('#printinfo').removeClass('HideOnPage');
+                   $('#printinfo').empty()
+                   $('#printinfo').html(data)
+                   printReport()
+                   $('#spinner').hide();
+               },
+               error: function (data, status, other) { alert(other); }
+           });
+       }       
    }
 }
 
@@ -474,6 +518,7 @@ function printBalSheetMulti() {
     var accno = "off"
     var per = "off"
     var lang = 0 //0 is english, 1 is spanish
+    var counter = 0
 
     if ($('[id$=DDL_Print_Language]').val() == 1) { lang = 1 }
     if ($('[id$=CB_Print_Accno]').is(':checked')) { accno = "on" } else { accno = "off" }
@@ -489,6 +534,7 @@ function printBalSheetMulti() {
                 $('#printinfo').empty()
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
@@ -502,6 +548,7 @@ function printBalSheetMulti() {
                 $('#printinfo').empty()
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
@@ -511,49 +558,78 @@ function printBalSheetMulti() {
         var Q2ch = "off"
         var Q3ch = "off"
         var Q4ch = "off"
-        if ($('[id$=CB_Q1]').is(':checked')) { Q1ch = "on" } else { Q1ch = "off" }
-        if ($('[id$=CB_Q2]').is(':checked')) { Q2ch = "on" } else { Q2ch = "off" }
-        if ($('[id$=CB_Q3]').is(':checked')) { Q3ch = "on" } else { Q3ch = "off" }
-        if ($('[id$=CB_Q4]').is(':checked')) { Q4ch = "on" } else { Q4ch = "off" }
+        if ($('[id$=CB_Q1]').is(':checked')) {
+            Q1ch = "on"
+            counter += 1
+        } else { Q1ch = "off" }
+        if ($('[id$=CB_Q2]').is(':checked')) {
+            Q2ch = "on"
+            counter += 1
+        } else { Q2ch = "off" }
+        if ($('[id$=CB_Q3]').is(':checked')) {
+            Q3ch = "on"
+            counter += 1
+        } else { Q3ch = "off" }
+        if ($('[id$=CB_Q4]').is(':checked')) {
+            Q4ch = "on"
+            counter += 1
+        } else { Q4ch = "off" }
 
-        $.ajax({
-            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-            success: function (data, status, other) {
-                $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
-                printReport()
-            },
-            error: function (data, status, other) { alert(other); }
-        });
+        // Quarter Restriction
+        if (counter > 3) { alert ("Please select no more than 3 quarters to print")}
+        else if (counter < 2) { alert("Please select at least 2 quarters to print") }
+        else {
+            $.ajax({
+                async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+                data: { action: "BalSheetMultiQuarterly", language: lang, YearForQuater: $('[id$=DDL_Print_Quarter]').val(), Q1: Q1ch, Q2: Q2ch, Q3: Q3ch, Q4: Q4ch, detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                success: function (data, status, other) {
+                    $('#printinfo').removeClass('HideOnPage');
+                    $('#printinfo').empty()
+                    $('#printinfo').html(data)
+                    printReport()
+                    $('#spinner').hide();
+                },
+                error: function (data, status, other) { alert(other); }
+            });
+        }        
     }
     if ($('[id$=DDL_Print_Period]').val() == 'Quarter-to-Quarter') {
         $.ajax({
             async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiQuarter-to-Quarter", language: lang, SecQuarter: $('[id$=DDL_Print_Q]').val(), prev: $('[id$=DDL_Print_PreviousQ]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Percentage: per, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+            data: { action: "BalSheetMultiQuarter-to-Quarter", language: lang, SecQuarter: $('[id$=DDL_Print_Q]').val(), prev: $('[id$=DDL_Print_Previous]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Percentage: per, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
             success: function (data, status, other) {
                 $('#printinfo').removeClass('HideOnPage');
                 $('#printinfo').empty()
                 $('#printinfo').html(data)
                 printReport()
+                $('#spinner').hide();
             },
             error: function (data, status, other) { alert(other); }
         });
     }
 
     if ($('[id$=DDL_Print_Period]').val() == 'Yearly') {
-        $.ajax({
-            async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
-            data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
-            success: function (data, status, other) {
-                $('#printinfo').removeClass('HideOnPage');
-                $('#printinfo').empty()
-                $('#printinfo').html(data)
-                printReport()
-            },
-            error: function (data, status, other) { alert(other); }
-        });
+        // Year restriction
+        if ($('[id$=DDL_Print_YearTo]').val() - $('[id$=DDL_Print_YearFrom]').val() > 2) {
+            alert("Please select no more than 2 (Two) years in difference")
+        }
+        else if ($('[id$=DDL_Print_YearTo]').val() < $('[id$=DDL_Print_YearFrom]').val()) {
+            alert("The year selected is not correct. Please change the year selection")
+        }
+        else {
+            $.ajax({
+                async: true, type: 'POST', dataType: 'text', url: 'AjaxPrinting.aspx',
+                data: { action: "BalSheetMultiYearly", language: lang, FirstDate: $('[id$=DDL_Print_YearFrom]').val(), SecondDate: $('[id$=DDL_Print_YearTo]').val(), detailLevel: $('[id$=DDL_Print_Level]').val(), showZeros: checked, Ac: accno, Denom: $('[id$=DDL_Print_Denomination]').val(), Round: roundChecked },
+                success: function (data, status, other) {
+                    $('#printinfo').removeClass('HideOnPage');
+                    $('#printinfo').empty()
+                    $('#printinfo').html(data)
+                    printReport()
+                    $('#spinner').hide();
+                },
+                error: function (data, status, other) { alert(other); }
+            });
+        }        
     }
 }
 
@@ -1050,3 +1126,11 @@ function printSalesReport() {
         error: function (data, status, other) { alert(other); }
     });
 }
+
+// Date Restriction
+$(document).on('change', '[id$=CB_Q1], [id$=CB_Q2], [id$=CB_Q3], [id$=CB_Q4]', function () {
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q3]').is(':checked')) { $('[id$=CB_Q4]').attr("disabled", true); } else { $('[id$=CB_Q4]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q3]').attr("disabled", true); } else { $('[id$=CB_Q3]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q1]').is(':checked') && $('[id$=CB_Q3]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q2]').attr("disabled", true); } else { $('[id$=CB_Q2]').removeAttr("disabled"); }
+    if ($('[id$=CB_Q2]').is(':checked') && $('[id$=CB_Q3]').is(':checked') && $('[id$=CB_Q4]').is(':checked')) { $('[id$=CB_Q1]').attr("disabled", true); } else { $('[id$=CB_Q1]').removeAttr("disabled"); }
+})
