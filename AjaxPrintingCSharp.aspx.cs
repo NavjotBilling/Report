@@ -10,6 +10,9 @@ using System.Web.UI.WebControls;
 
 public partial class AjaxPrintingCSharp :  System.Web.UI.Page
 {
+    SqlConnection Conn = new SqlConnection(System.Configuration.ConfigurationManager.AppSettings["ConnInfo"]);
+    SqlCommand SQLCommand = new SqlCommand();
+    SqlDataAdapter DataAdapter = new SqlDataAdapter();
     protected void Page_Load(object sender, EventArgs e)
     {
         string Action = Request.Form["action"];
@@ -82,9 +85,10 @@ public partial class AjaxPrintingCSharp :  System.Web.UI.Page
         DataTable COA = new DataTable();
         DataTable Report = new DataTable();
 
-        // Denomination
-
         // Get Fiscal date
+
+
+        // Denomination
 
         // Translation
 
