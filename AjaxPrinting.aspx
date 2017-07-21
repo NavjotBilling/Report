@@ -5,13 +5,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
-    <style type="text/css">
+    <style type="text/css" >
         .auto-style2 {
+           
             width: 500px;
         }
     </style>
 </head>
 <body>
+
     <form id="form1" runat="server">
 
         <asp:HiddenField ID="HF_Error" runat="server" />
@@ -60,7 +62,7 @@
 
 <asp:Panel ID="PNL_Summary" Visible="false" runat="server">
 <asp:HiddenField ID="HF_RowCount" runat="server" />
-<table id="summary" cellpadding="0" cellspacing="0" class="tablerow" style="width:100%; position:relative; border-bottom: solid 1px darkgray">
+<table id="summary" cellpadding="0" cellspacing="0" class="tablerow" style="width:100%; position:relative">
 <asp:Repeater ID="RPT_List" runat="server">
     <ItemTemplate>
         <tr id='<%# "trsum_" & LCase(Eval("Doc_No").ToString) & LCase(Eval("Name").ToString) & LCase(Eval("Description").ToString)%>'>
@@ -378,260 +380,196 @@
             </div>
 
            <%-- Includes Category, Type and Language--%>
-
-            <td class="auto-style2">
-                  <table id="table_print">                         
-                <tr style ="width: 100px; float: center;">
-                    <td valign="top" align="left" bgcolor="#6699FF" class="auto-style2">
-                          
-                    <asp:Label ID="LBL_ReportTitle" CssClass="title"  Text="Print Reports" runat="server" ForeColor="White" />
-               </td>
-                 </tr>
-                <tr  style="width: 0px; float: left;">
-                    <td valign="top" align="left" style="padding: 18px 0px;" class="auto-style2">
-                        <asp:Label Text="Category: " CssClass="text9" runat="server" style="padding: 18px 0px 0px 13px;"  />
-
-                        <td valign="top" align="left" style="padding: 18px 0px;" class="auto-style2" width="400">                            
-                        <asp:DropDownList ID="DDL_Print_Category" CssClass="text9box" align="left" runat="server" style="padding: 3px 10px;" />
-                            <td valign="top" align="left" style="padding: 18px 0px;" class="auto-style2">
-                        <asp:Label ID="LBL_T_LangLabel" Text="Language: " CssClass="text9" align= "right" runat="server" style="padding:18px 0px 0px 90px;"/>
-                           </td>
-                        </td>
-                            <td valign="top" align="right" style="padding: 18px 0px;" class="auto-style2" width="400">
-                            <asp:DropDownList ID="DDL_Print_Language" CssClass="text9box" runat="server">
-                            <asp:ListItem Text="English" Value="0"></asp:ListItem>
-                            <asp:ListItem Text="Español" Value="1"></asp:ListItem>
-                        </asp:DropDownList>
-                            </td>
-                            
-                    </tr>
-
-                      <tr>
-                          <td id="typestandard" align="left" class="auto-style2" style="padding: 18px 15px;" valign="top">
-                              <asp:Label runat="server" CssClass="text9" Text="Type: " />
-                              <asp:DropDownList ID="DDL_Print_Report" runat="server" CssClass="text9box" Width="200px">
-                              </asp:DropDownList>
-                          </td>
-                      </tr>
-
+            <table>
                 <tr>
-                   <td id= "typeMulti" valign="top" align="left" style="padding: 18px 15px; display: none" class="auto-style2">
-                       <asp:Label Text="Type: " CssClass="text9" runat="server"/>
-                       <asp:DropDownList ID="DDL_Print_MultiPeriod" runat="server" CssClass="text9box" Width="200px">
-                               <asp:ListItem Text="Balance Sheet" Value="11" />
-                               <asp:ListItem Text="Income Statement" Value="22" />                                        
-                       </asp:DropDownList>   
-                       
-                </td>                           
-                </tr>
-                    </table>
-            </td>
-                
-         
-      
-                <%--Includes Denomination, Detail Level, Round, Show Zero's, Show %, Show Act No--%>
- 
-                    <tr>
-                    <td colspan="4" class="">
-                        <hr />
-                        <table id="table_general2" >
-                            <tr id="DetailReport" style="display: none;">
-                                <td valign="top" align="right"  style="padding: 18px 15px;">
-                                    <asp:Label ID="LBL_T_23" CssClass="text9" Text="Account No." runat="server" /><span>
+                    <td>
+                         <table id="table_print" style="width: 100%; border-collapse:collapse; border: transparent; border-radius: 6px 6px; ">
+                            <tr style="width: 0px; float: left;">
+                                <td align="left" style="padding: 10px 5px;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Category: " Width="70px" />
                                 </td>
-                                 <td valign="top" align="left"  style="padding: 15px 5px;">
-                                    <asp:TextBox ID="TB_Print_AccNo" Style="text-align: center;" CssClass="text9box" Width="50px" runat="server" /></span>
+                                <td align="left" style="padding: 10px 5px;" valign="top">
+                                    <asp:DropDownList ID="DDL_Print_Category" runat="server" align="right" CssClass="text9box" Width="180px" />
                                 </td>
-                            </tr>
-                            <tr>
-                                <td valign="top" align="left" style="padding: 18px 5px;">
-                                    <asp:Label ID="Label31" Text="Denomination Level:" CssClass="text9" runat="server" />
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td align="right"style="padding: 10px 5px; padding-left: 93px; padding-right: 0px;" valign="top">
+                                    <asp:Label ID="LBL_T_LangLabel" runat="server" CssClass="text9" Text="Language: " />
                                 </td>
-                                 <td valign="top" align="left" style="padding: 15px 5px;">
-                                    <asp:DropDownList ID="DDL_Print_Denomination" runat="server" CssClass="text9box" Width="100px"></asp:DropDownList>
-                                </td>
-                                <td valign="top" align="right" style="padding: 15px 0px;">
-                                    <asp:Label ID="LBL_T_19" CssClass="text9" Text="Round: " runat="server" Width= "50px"/>
-                                   
-                                    <asp:CheckBox runat="server" ID="CB_Print_Round" AutoPostBack="false" Text="" />
-                                 </td>
-                                
-                                 <td valign="top" align="right" style="padding: 15px 0px;">
-                                    <asp:Label ID="LBL_T_20" CssClass="text9" Text="Show Zero's: " runat="server" Width= "100px" />
-                                     
-                                    <asp:CheckBox runat="server" ID="CB_Print_ShowZeros" AutoPostBack="false" Text="" />
-                                </td>
-                            </tr>
-
-                            <tr  id="td_detail">
-                                <td valign="top" align="left" style="padding: 18px 5px;">
-                                    <asp:Label ID="LBL_T_DetailLabel" Text="Detail Level:" CssClass="text9" runat="server" />
-                                </td>
-                                 <td valign="top" align="left" style="padding: 15px 5px;">
-                                    <asp:DropDownList ID="DDL_Print_Level" CssClass="text9box" runat="server" Height="24px" Width="100px">
-                                        <asp:ListItem Text="1" Value="1"></asp:ListItem>
+                                <td align="right" style="padding: 10px 5px;" valign="top">
+                                    <asp:DropDownList ID="DDL_Print_Language" runat="server" CssClass="text9box">
+                                        <asp:ListItem Text="English" Value="0"></asp:ListItem>
+                                        <asp:ListItem Text="Español" Value="1"></asp:ListItem>
                                     </asp:DropDownList>
                                 </td>
-                                <td valign="top" align="right" style="padding: 15px 0px;" id="Show_per">
-                                    <asp:Label ID="Label32" CssClass="text9" Text="Show %: " runat="server" Width="100px" />
-                                    
-                                    <asp:CheckBox ID="CB_Print_ShowPer" Text="" AutoPostBack="false" runat="server" />
-                                </td>
-                                <td valign="top" align="right" style="padding: 15px 0px;" >
-                                    <asp:Label ID="Label33" CssClass="text9" Text="Show Act No: " runat="server" Width="100px" />
-                                    
-                                    <asp:CheckBox ID="CB_Print_Accno" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
-                                </td>
-                            </tr>
-                        </table>
-                        
-                    </td>
-                    </tr>
-                
-             
-                
-
-
-                
-               <%-- Includes Type and Date--%>
-                    <tr>
-                    <td class="auto-style2" >
-                        <hr />
-                        <table id="table_general1">
-                           
-                            <tr>
-                                <td class="auto-style2" valign="top" align="left" style="padding: 15px 15px;">
-
-                                    <asp:Label Text="Date: " CssClass="text9" runat="server"  />
-                                    <asp:TextBox ID="TB_Print_Date1" Style="text-align: center" CssClass="text9box" Width="100px" runat="server" /><span id="PrintDate2Span">
-                                    <asp:TextBox ID="TB_Print_Date2" Style="text-align: center" CssClass="text9box" Width="100px" runat="server" /></span>
-                                </td>
-                               
                             </tr>
                             <tr>
-                                <td class="auto-style2" valign="top" align="left" style="padding: 15px 15px;">
-                                    </td>
-                                
-                            </tr>
-                           
-                        
-                        <table id="table_MultiPeriod" style="display:none;">
-
-                            <tr>
-                                <td valign="top" align="left" style="padding: 15px 15px;">
-                                    <asp:Label Text="Period: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID="DDL_Print_Period" runat="server" CssClass="text9box" Width="150px"></asp:DropDownList>
-                                </td>
-                                
-                                <td id="dropdownlist" valign="top" align="right" style="padding: 15px 55px;">
-                                    <asp:Label Text="No. of Periods: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID="DDL_Print_Previous" runat="server" CssClass="text9box">
-                                        <asp:ListItem Text="2 Years" Value="2" /> 
-                                        <asp:ListItem Text="3 Years" Value="3" />
-                                        <asp:ListItem Text="4 Years" Value="4" />
-                                        <asp:ListItem Text="5 Years" Value="5" />
-                                      </asp:DropDownList>
-                                </td> 
-
-                                 <td id="MonthlySelector" valign="top" align="left" style="padding: 15px 15px;">
-                                    <asp:Label Text="Date: " CssClass="text9" runat="server" />
-                                    <asp:TextBox ID="TB_Print_Date11" Style="text-align: center" CssClass="text9box" Width="85px" runat="server" /><span id="PrintDate2Span1">&nbsp;-&nbsp;
-                                    <asp:TextBox ID="TB_Print_Date22" Style="text-align: center" CssClass="text9box" Width="85px" runat="server" /></span>
+                                <td id="typestandard" align="left" style="padding: 10px 5px;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Type: " Width="75px" />
+                                    <asp:DropDownList ID="DDL_Print_Report" runat="server" align="right" CssClass="text9box" Width="180px">
+                                    </asp:DropDownList>
                                 </td>
 
-                                 <td id= "QuarterlySelector1" valign="top" align="left" style="padding: 15px 15px;">
-                                    <asp:Label Text="Year: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID="DDL_Print_Quarter" CssClass="text9box" runat="server" />
-                                </td>     
-
-<%--                                   <td id="QuarterlySelector2" valign="top" align="left" style="padding: 15px 10px;">
-                                    <asp:CheckBox ID="CB_Q1" CssClass="text9" Text="Sept-Nov" runat="server"/>
-                                    <asp:CheckBox ID="CB_Q2" CssClass="text9" Text="Dec-Feb" runat="server"/>                                     
-                                    <asp:CheckBox ID="CB_Q3" CssClass="text9" Text="Mar-May" runat="server"/>
-                                    <asp:CheckBox ID="CB_Q4" CssClass="text9" Text="Jun-Aug" runat="server"/>
-                                </td>--%>
-                                
-                                <td id="YearlySelector" valign="top" align="left" style="padding: 15px 15px;">
-                                    <asp:Label Text="Year: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID ="DDL_Print_YearFrom" CssClass="text9" runat="server" /><span>&nbsp;-&nbsp;
-                                    <asp:DropDownList ID="DDL_Print_YearTo" CssClass="text9" runat="server" /></span>
-                                </td>
-                            </tr>
-
-           
-
-                            <tr id ="MonthToMonthSelector">
-                              <td valign="top" align="left" style="padding: 15px 15px;">
-                                      <asp:Label Text="Select Month: " CssClass="text9" runat="server" />
-                                       <asp:DropDownList ID="DDL_Print_P" CssClass="text9box" runat="server" /><br/> <br/>
-                                    </td>
-                                    </tr>
-
-
-<%--                            <tr id="QuarterlySelector1">
-                                                      
-                            </tr>    --%>
-                            
-                            <tr id= "QuarterlySelector2">
-                                <td valign="top" align="left" style="padding: 15px 10px;">
-                                    <asp:CheckBox ID="CB_Q1" CssClass="text9" Text="Sept-Nov" runat="server"/>
-                                    <asp:CheckBox ID="CB_Q2" CssClass="text9" Text="Dec-Feb" runat="server"/>                                     
-                                    <asp:CheckBox ID="CB_Q3" CssClass="text9" Text="Mar-May" runat="server"/>
-                                    <asp:CheckBox ID="CB_Q4" CssClass="text9" Text="Jun-Aug" runat="server"/>
-                                </td>
-                        </tr>
-                                
-
-                            <tr id="QuarterToQuarterSelector">
-                                <td valign="top" align="left" style="padding: 15px 15px;">
-                                    <asp:Label Text="Select Quarter: " CssClass="text9" runat="server" />
-                                    <asp:DropDownList ID="DDL_Print_Q" CssClass="text9" runat="server"/><br/> <br/>
-                                </td>
-                            </tr>
-                            </table>
-                        </table>                       
-                    </td>
-                        </tr>
-
-                <tr>
-                    <td class="auto-style2">
-                        <table id="table_sales" style="display:none;">
-                            <tr id="Report_AR">
-                                <td align="left" style="padding: 15px 15px;">
-                                    <asp:Label runat="server" Text="Type: " />
-                                    <asp:DropDownList ID="DDL_Print_Details" runat="server" CssClass="text9box" Width="120px">
+                                <td id="Report_AR" align="left" style="padding: 10px 5px; display:none;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Type: " Width="75px"/>
+                                    <asp:DropDownList ID="DDL_Print_Details" runat="server" align="right" CssClass="text9box" Width="180px">
                                         <asp:ListItem Text="Summary" Value="Summary" />
                                         <asp:ListItem Text="Details" Value="Details" />
                                         <asp:ListItem Text="Report" Value="Report" />
                                     </asp:DropDownList>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td align="left" style="padding: 15px 15px; " valign="top">
-                                    <asp:Label runat="server" Text="Currency: " />
+                                
+                                <td id="typeMulti" align="left" style="padding: 10px 5px; display:none;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Type: " Width="75px"/>
+                                    <asp:DropDownList ID="DDL_Print_MultiPeriod" runat="server" align="right" CssClass="text9box" Width="180px">
+                                        <asp:ListItem Text="Balance Sheet" Value="11" />
+                                        <asp:ListItem Text="Income Statement" Value="22" />
+                                        <asp:ListItem Text="Sales-Report" Value="33" />
+                                        <asp:ListItem Text="Purchase-Report" Value="44" />
+                                    </asp:DropDownList>
+                                </td>
+                                <td id="showCurrency" align="left" style="padding: 10px 5px; display:none;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Currency: " />
                                     <asp:DropDownList ID="DDL_Print_Currency" runat="server" CssClass="text9box" Width="90px" />
                                 </td>
                             </tr>
+                        </table>
+                        <hr style="width:590px;"/>
+                    </td>
+                </tr>
+               <tr>
+                   <td>
+                        <table id="table_general1">
+                          <tr>
+                              <td valign="top" align="left" style="padding: 10px 5px;">
+                                    <asp:Label Text="Date: " CssClass="text9" runat="server" Width="75px" />
+                                    <asp:TextBox ID="TB_Print_Date1" Style="text-align: center" CssClass="text9box" Width="100px" runat="server" /><span id="PrintDate2Span">&nbsp;-&nbsp;
+                                    <asp:TextBox ID="TB_Print_Date2" Style="text-align: center" CssClass="text9box" Width="100px" runat="server" /></span>
+                              </td>
+                           </tr>
+                        </table>
+                        <table id="table_MultiPeriod" style="display:none;">
                             <tr>
-                                <td align="left" style="padding: 15px 15px;" valign="top">
-                                    <asp:Label runat="server" Text="Date: " />
+                                <td valign="top" align="left" style="padding: 10px 5px;">
+                                     <asp:Label Text="Period: " CssClass="text9" runat="server" Width="75px"/>
+                                     <asp:DropDownList ID="DDL_Print_Period" runat="server" CssClass="text9box" Width="180px"></asp:DropDownList>
+                                </td>
+                                
+                                <td id="showGoback" valign="top" align="right" style="padding: 10px 5px; display:none;">
+                                    <asp:Label Text="No. of Periods: " CssClass="text9" runat="server"/>
+                                     <asp:DropDownList ID="DDL_Print_Previous" runat="server" CssClass="text9box">
+                                         <asp:ListItem Text="2 Years" Value="2" /> 
+                                         <asp:ListItem Text="3 Years" Value="3" />
+                                         <asp:ListItem Text="4 Years" Value="4" />
+                                         <asp:ListItem Text="5 Years" Value="5" />
+                                     </asp:DropDownList>
+                                 </td> 
+
+                                 <td id="MonthlySelector" valign="top" align="left" style="padding: 10px 5px;">
+                                      <asp:Label Text="Date: " CssClass="text9" runat="server"/>
+                                      <asp:TextBox ID="TB_Print_Date11" Style="text-align: center" CssClass="text9box" Width="85px" runat="server" /><span id="PrintDate2Span1">&nbsp;-&nbsp;
+                                      <asp:TextBox ID="TB_Print_Date22" Style="text-align: center" CssClass="text9box" Width="85px" runat="server" /></span>
+                                 </td>
+
+                                 <td id= "QuarterlySelector1" valign="top" align="left" style="padding: 10px 5px; display:none;">
+                                     <asp:Label Text="Year: " CssClass="text9" runat="server"/>
+                                     <asp:DropDownList ID="DDL_Print_Quarter" CssClass="text9box" runat="server" />
+                                 </td>     
+                                                    
+                                 <td id="YearlySelector" valign="top" align="left" style="padding: 10px 5px; display:none;">
+                                      <asp:Label Text="Year: " CssClass="text9" runat="server"/>
+                                      <asp:DropDownList ID ="DDL_Print_YearFrom" CssClass="text9box" runat="server" /><span>&nbsp;-&nbsp;
+                                      <asp:DropDownList ID="DDL_Print_YearTo" CssClass="text9box" runat="server" /></span>
+                                 </td>
+                             </tr>
+                            <tr id= "QuarterlySelector2" style="display:none;">
+                                <td valign="top" align="left" style="padding: 10px 5px;">
+                                     <asp:CheckBox ID="CB_Q1" CssClass="text9" Text="Sept-Nov" runat="server"/>
+                                     <asp:CheckBox ID="CB_Q2" CssClass="text9" Text="Dec-Feb" runat="server"/>                                     
+                                     <asp:CheckBox ID="CB_Q3" CssClass="text9" Text="Mar-May" runat="server"/>
+                                     <asp:CheckBox ID="CB_Q4" CssClass="text9" Text="Jun-Aug" runat="server"/>
+                                 </td>
+                            </tr>
+                             <tr id ="MonthToMonthSelector" style="display:none;">
+                                  <td valign="top" align="left" style="padding: 10px 5px;">
+                                       <asp:Label Text="Select Month: " CssClass="text9" runat="server" Width="75px"/>
+                                       <asp:DropDownList ID="DDL_Print_P" CssClass="text9box" runat="server" />
+                                  </td>
+                             </tr>
+                                                          
+                             <tr id="QuarterToQuarterSelector" style="display:none;">
+                                  <td valign="top" align="left" style="padding: 10px 5px;">
+                                      <asp:Label Text="Select Quarter: " CssClass="text9" runat="server" Width="75px"/>
+                                      <asp:DropDownList ID="DDL_Print_Q" CssClass="text9box" runat="server"/>
+                                  </td>
+                             </tr>
+                        </table>
+                        <table id="table_sales" style="display:none;">
+                            <tr>
+                                <td  id="Report_Date" align="left" style="padding: 10px 5px;" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Date: " Width="75px" />
                                     <asp:TextBox ID="Date_Print_From" runat="server" class="text9box" style="width:100px; text-align:center" />
                                     <span id="Date_DTSpan">&nbsp;-&nbsp;
                                     <asp:TextBox ID="Date_Print_To" runat="server" class="text9box" style="width:100px; text-align:center" />
                                     </span></td>
-                            </tr>
-                            <tr>
-                                <td id="td_customer" align="left" style="padding: 15px 15px; display:none" valign="top">
-                                    <asp:Label runat="server" Text="Customer: " />
+                                <td id="td_customer" align="left"  style="padding: 10px 5px; display:none" valign="top">
+                                    <asp:Label runat="server" CssClass="text9" Text="Customer: " />
                                     <asp:DropDownList ID="DDL_Print_Customer" runat="server" class="text9box" style="width:200px;" />
                                 </td>
                             </tr>
-                        </table>
-                    </td>
-                </tr>
-                
-                        
-            <table id="table button" style="float:right;">
+                           
+                    </table>
+                    <hr style="width:590px;"/>
+                  </td>
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                            <tr>
+                                <td id="showDenom" valign="top" align="left" style="padding: 10px 5px;">
+                                    <asp:Label ID="Label31" Text="Denomination Level:" CssClass="text9" runat="server" Width="150px"/>
+                                    <asp:DropDownList ID="DDL_Print_Denomination" runat="server" CssClass="text9box" Width="100px"></asp:DropDownList>
+                                </td>
+                                <td id="showRound" valign="top" align="right" style="padding: 10px 5px;">
+                                    <asp:Label ID="LBL_T_19" CssClass="text9" Text="Round:" runat="server" Width= "100px"/><span><img style="cursor:pointer" src="images/iconinfo.png" width="10px" title="Round to 0 decimal places" alt="" /></span>
+                                    <asp:CheckBox runat="server" ID="CB_Print_Round" AutoPostBack="false" Text="" />
+                                </td>
+                                <td id="Show_per" valign="top" align="right" style="padding: 10px 5px;">
+                                    <asp:Label ID="Label32" CssClass="text9" Text="Show %: " runat="server" Width="100px" />
+                                    <asp:CheckBox ID="CB_Print_ShowPer" Text="" AutoPostBack="false" runat="server" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td id="showDetail" valign="top" align="left" style="padding: 10px 5px;">
+                                    <asp:Label ID="LBL_T_DetailLabel" Text="Detail Level:" CssClass="text9" runat="server" Width="150px" /><%--<span><img style="cursor:pointer" src="images/iconinfo.png" width="10px" title="Detail level" alt="" /></span>--%>
+                                    <asp:DropDownList ID="DDL_Print_Level" CssClass="text9box" runat="server" Height="24px" Width="100px">
+                                        <asp:ListItem Text="1" Value="1"></asp:ListItem>
+                                    </asp:DropDownList>
+                                </td>
+
+                                <td id="showZeros" valign="top" align="right" style="padding: 10px 5px;">
+                                    <asp:Label ID="LBL_T_20" CssClass="text9" Text="Show Zero's: " runat="server" Width= "100px" /><span><img style="cursor:pointer" src="images/iconinfo.png" width="10px" title="Show Accounts with zero balance"  alt="" /></span>
+                                    <asp:CheckBox runat="server" ID="CB_Print_ShowZeros" AutoPostBack="false" Text="" />
+                                </td>
+                                
+                                <td id="showAcc" valign="top" align="right" style="padding: 10px 5px;" >
+                                    <asp:Label ID="Label33" CssClass="text9" Text="Show Act No: " runat="server" Width="100px" />
+                                    <asp:CheckBox ID="CB_Print_Accno" CssClass="text9" Text="" AutoPostBack="false" runat="server" />
+                                </td>
+                            </tr>
+                            <tr id="DetailReport" style="display: none;">
+                                <td valign="top" align="left"  style="padding: 10px 5px;">
+                                    <asp:Label ID="LBL_T_23" CssClass="text9" Text="Account No." runat="server" Width="150px"/>
+                                    <asp:TextBox ID="TB_Print_AccNo" Style="text-align: center;" CssClass="text9box" Width="100px" runat="server" />
+                                </td>
+                            </tr>
+                </table>
+                </td>
+            </tr>
+         </table>      
+           <%-- <table id="table button" style="float:right;">
                 <tr>
                     <td style="width: 70px; padding-left: 10px; display:none;" align="left" class="noprint">
                         <asp:Button ID="BTN_Print_Export" CssClass="buttonnew" Width="85px" Height="25px" Text="EXPORT" runat="server" /></td>
@@ -640,6 +578,37 @@
                     <td style="width: 70px; padding-left: 10px" align="left" class="noprint">
                         <asp:Button ID="BTN_Print_Cancel" CssClass="buttonnew" Width="85px" Height="25px" Text="CANCEL" runat="server" /></td>
                 </tr>
+            </table>--%>
+        </asp:Panel>
+
+        <asp:Panel ID="PNL_Excel" runat="server" Visible="false">
+            <table id="excel_table">             
+                <asp:Repeater ID="RPT_Excel" runat="server">
+                    <ItemTemplate>
+                        <tr>
+                            <td><asp:Label Text='<%#Eval("value0") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value1") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value2") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value3") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value4") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value5") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value6") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value7") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value8") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value9") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value10") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value11") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value12") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value13") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value14") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value15") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value16") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value17") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value18") %>' runat="server"></asp:Label></td>
+                            <td><asp:Label Text='<%#Eval("value19") %>' runat="server"></asp:Label></td>
+                        </tr>
+                    </ItemTemplate>
+                </asp:Repeater>
             </table>
         </asp:Panel>
     </form>

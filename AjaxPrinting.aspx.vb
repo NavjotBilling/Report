@@ -11,9 +11,7 @@ Partial Class AjaxPrinting
     Inherits System.Web.UI.Page
 
     Dim Conn As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("ConnInfo"))
-    Dim ConnNav As New SqlConnection(System.Configuration.ConfigurationManager.AppSettings("NAV_Data"))
     Dim SQLCommand As New SqlCommand
-    Dim SQLNav As New SqlCommand
     Dim DataAdapter As New SqlDataAdapter
     Dim DataAdapterNav As New SqlDataAdapter
     Dim DBTable As New DataTable
@@ -22,9 +20,6 @@ Partial Class AjaxPrinting
 
         SQLCommand.Connection = Conn
         DataAdapter.SelectCommand = SQLCommand
-
-        SQLNav.Connection = ConnNav
-        DataAdapterNav.SelectCommand = SQLNav
 
         Dim Action As String = Request.Form("action")
 
@@ -84,7 +79,7 @@ Partial Class AjaxPrinting
             updown = " ASC"
         End If
         'Δ
-        If sort_param = "Transaction Date Δ" Then
+        If sort_param = "Transaction Date ^" Then
             sort_param = "Transaction_Date"
             updown = " DESC"
         End If
@@ -123,6 +118,7 @@ Partial Class AjaxPrinting
 
         Conn.Close()
     End Sub
+    ' Sales/Purchases Report
     Private Sub PrintSalesSummary()
 
         Dim Language As Integer = Request.Form("language")
@@ -130,30 +126,60 @@ Partial Class AjaxPrinting
         Dim ToDate As String = Request.Form("date2")
         Dim Currency As String = Request.Form("cur")
         Dim Type As String = Request.Form("type")
+        Dim Percentage As String = Request.Form("Percentage")
         Dim TotalTitle As String = ""
+        Dim PercentageHeader As String = ""
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
 
         If Language = 0 Then
+            If Percentage = "on" Then PercentageHeader = "~text-align:right; font-size:9pt; width:90px; font-weight:bold~Percentage(%)"
             If Type = "P" Then
-                HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~No~text-align:left; font-size:9pt; font-weight:bold~Customer Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)"
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc.<br/>Purchase Summary Report<br/>From " & FromDate & " to " & ToDate & "<br/>Currency: " & Currency & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+                If Request.Form("Ac") <> "on" Then
+                    HF_PrintHeader.Value = "text-align:left; width:0px; font-size:9pt; font-weight:bold~~text-align:left; font-size:9pt; font-weight:bold~Vendor Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)" & PercentageHeader
+                Else
+                    HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~No~text-align:left; font-size:9pt; font-weight:bold~Vendor Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)" & PercentageHeader
+                End If
+
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Purchase Summary Report<br/>From " & FromDate & " to " & ToDate & "<br/>Currency: " & Currency & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
                 TotalTitle = "Total Purchases"
             End If
 
             If Type = "S" Then
-                HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~No~text-align:left; font-size:9pt; font-weight:bold~Customer Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)"
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc.<br/>Sales Summary Report</br>From " & FromDate & " to " & ToDate & "<br/>Currency: " & Currency & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+                If Request.Form("Ac") <> "on" Then
+                    HF_PrintHeader.Value = "text-align:left; width:0px; font-size:9pt; font-weight:bold~~text-align:left; font-size:9pt; font-weight:bold~Customer Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)" & PercentageHeader
+                Else
+                    HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~No~text-align:left; font-size:9pt; font-weight:bold~Customer Name~text-align:right; font-size:9pt; width:180px; font-weight:bold~Net Sales ($)" & PercentageHeader
+                End If
+
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Sales Summary Report</br>From " & FromDate & " to " & ToDate & "<br/>Currency: " & Currency & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
                 TotalTitle = "Total Sales"
             End If
         ElseIf Language = 1 Then
+            If Percentage = "on" Then PercentageHeader = "~text-align:right; font-size:9pt; width:90px; font-weight:bold~Porcentaje(%)"
             If Type = "P" Then
-                HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~Número~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Cliente~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)"
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc.<br/>Informe De Resumen De Compra<br/>Desde " & FromDate & " a " & ToDate & "<br/>Moneda: " & Currency & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+                If Request.Form("Ac") <> "on" Then
+                    HF_PrintHeader.Value = "text-align:left; width:0px; font-size:9pt; font-weight:bold~~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Vendedor~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)" & PercentageHeader
+                Else
+                    HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~Número~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Vendedor~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)" & PercentageHeader
+                End If
+
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Informe De Resumen De Compra<br/>Desde " & FromDate & " a " & ToDate & "<br/>Moneda: " & Currency & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
                 TotalTitle = "Total De Compras"
             End If
 
-            If Type = "S" Then
-                HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~Número~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Cliente~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)"
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc.<br/>Informe De Resumen De Ventas</br>Desde " & FromDate & " a " & ToDate & "<br/>Moneda: " & Currency & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+                If Type = "S" Then
+                If Request.Form("Ac") <> "on" Then
+                    HF_PrintHeader.Value = "text-align:left; width:0px; font-size:9pt; font-weight:bold~~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Cliente~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)" & PercentageHeader
+                Else
+                    HF_PrintHeader.Value = "text-align:left; width:80px; font-size:9pt; font-weight:bold~Número~text-align:left; font-size:9pt; font-weight:bold~Nombre Del Cliente~text-align:right; font-size:9pt; width:180px; font-weight:bold~Las Ventas Netas ($)" & PercentageHeader
+                End If
+
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Informe De Resumen De Ventas</br>Desde " & FromDate & " a " & ToDate & "<br/>Moneda: " & Currency & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
                 TotalTitle = "Ventas Totales"
             End If
         End If
@@ -170,7 +196,7 @@ Partial Class AjaxPrinting
         If Currency = "CAD" Then where = " (Currency = '' or Currency = '" & Currency & "') and"
         If Currency = "ALL" Then where = ""
 
-        If Type = "P" Then SQLCommand.CommandText = "Select Distinct(Cust_Vend_ID), Name, Currency, (Select sum(Total) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PINV') as Total, (Select sum(Tax) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PINV') as Tax from ACC_PurchInv piv left join Customer on Cust_Vend_ID=Cust_ID where " & where & " piv.Doc_Date between @date1 and @date2 order by Name"
+        If Type = "P" Then SQLCommand.CommandText = "Select Distinct(Cust_Vend_ID), Name, Currency, (Select sum(Total) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PINV') as Total, (Select sum(Tax) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PINV') as Tax, (Select sum(Total) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PC') as TotalC, (Select sum(Tax) from ACC_PurchInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='PC') as TaxC from ACC_PurchInv piv left join Customer on Cust_Vend_ID=Cust_ID where " & where & "  piv.Doc_Date between @date1 and @date2 order by Name"
         If Type = "S" Then SQLCommand.CommandText = "Select Distinct(Cust_Vend_ID), Name, Currency, (Select sum(Total) from ACC_SalesInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='SINV') as Total, (Select sum(Tax) from ACC_SalesInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='SINV') as Tax, (Select sum(Total) from ACC_SalesInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='SC') as TotalC, (Select sum(Tax) from ACC_SalesInv where Cust_Vend_ID = piv.Cust_Vend_ID and Doc_Date between @date1 and @date2 and Doc_Type='SC') as TaxC from ACC_SalesInv piv left join Customer on Cust_Vend_ID=Cust_ID where " & where & "  piv.Doc_Date between @date1 and @date2 order by Name"
         SQLCommand.Parameters.Clear()
         SQLCommand.Parameters.AddWithValue("@date1", FromDate)
@@ -178,6 +204,7 @@ Partial Class AjaxPrinting
         DataAdapter.Fill(Sales)
 
         Sales.Columns.Add("SubTotal", GetType(Decimal))
+        Sales.Columns.Add("Percentage", GetType(String))
 
         Dim SubTotal As Decimal = 0
         Dim Tax As Decimal = 0
@@ -191,15 +218,43 @@ Partial Class AjaxPrinting
 
         Next
 
+        ' Percentage
+        If Percentage = "on" Then
+            For i = 0 To Sales.Rows.Count - 1
+                Sales.Rows(i)("Percentage") = (Val(Sales.Rows(i)("SubTotal").ToString) / SubTotal) * 100
+                Sales.Rows(i)("Percentage") = Format(Val(Sales.Rows(i)("Percentage").ToString), "##.00") + "%"
+            Next
+        End If
+
         For i = 1 To 15
             Report.Columns.Add("Style" + i.ToString, GetType(String))
             Report.Columns.Add("Field" + i.ToString, GetType(String))
         Next
 
-        For i = 0 To Sales.Rows.Count - 1
-            'Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Cust_Vend_ID").ToString, "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("Tax"), "#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("Total"), "#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-            Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Cust_Vend_ID").ToString, "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-        Next
+        If Percentage = "on" Then
+            If Request.Form("Ac") <> "on" Then
+                For i = 0 To Sales.Rows.Count - 1
+                    Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", "", "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "$#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Percentage").ToString, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Next
+            Else
+                For i = 0 To Sales.Rows.Count - 1
+                    Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Cust_Vend_ID").ToString, "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "$#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Percentage").ToString, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Next
+            End If
+
+        Else
+            If Request.Form("Ac") <> "on" Then
+                For i = 0 To Sales.Rows.Count - 1
+                    Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", "", "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "$#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Next
+            Else
+                For i = 0 To Sales.Rows.Count - 1
+                    Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Cust_Vend_ID").ToString, "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", Sales.Rows(i)("Name").ToString, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px;", Format(Sales.Rows(i)("SubTotal"), "$#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Next
+            End If
+
+        End If
+
         Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", "", "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold", TotalTitle, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold; border-top:solid 1px black; border-bottom: double 3px black", Currency & " " & Format(SubTotal, "$#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
         'Report.Rows.Add("text-align:left; font-size:9pt; padding: 3px 5px 3px 5px;", "", "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold", TotalTitle, "", "", "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold", Format(SubTotal, "$#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold", Format(Tax, "$#,###.00"), "text-align:right; font-size:9pt; padding: 3px 5px 3px 5px; font-weight:bold", Format(Total, "$#,###.00"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
@@ -210,6 +265,89 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+            Sales.Columns.Remove("Total")
+            Sales.Columns.Remove("Tax")
+            Sales.Columns.Remove("TotalC")
+            Sales.Columns.Remove("TaxC")
+
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            exportTable.Columns.Add("value0", GetType(String))
+            exportTable.Columns.Add("value1", GetType(String))
+            exportTable.Columns.Add("value2", GetType(String))
+            exportTable.Columns.Add("value3", GetType(String))
+
+            For i = 0 To Sales.Rows.Count - 1
+                exportTable.Rows.Add(Sales.Rows(i)("Cust_Vend_ID").ToString, Sales.Rows(i)("Name").ToString, Format(Sales.Rows(i)("SubTotal"), "$#,###.00"), Sales.Rows(i)("Percentage").ToString)
+            Next
+
+            ' Adding the Total
+            exportTable.Rows.Add("", "Total", Currency & " " & Format(SubTotal, "$#,###.00"), "")
+
+            ' Rename the existing column name to value
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = exportTable.NewRow()
+            If Language = 0 Then
+                excelheader("value0") = "ID"
+
+                If Type = "P" Then
+                    excelheader("value1") = "Vendor Name"
+                    excelheader("value2") = "Purchases"
+                Else
+                    excelheader("value1") = "Customer Name"
+                    excelheader("value2") = "Net Sales"
+                End If
+                If Percentage = "on" Then
+                    excelheader("value3") = "Percentage"
+                End If
+            ElseIf Language = 1 Then
+                excelheader("value0") = "ID"
+
+                If Type = "P" Then
+                    excelheader("value1") = "Nombre del Vendedor"
+                    excelheader("value2") = "Compras"
+                Else
+                    excelheader("value1") = "Nombre del Cliente"
+                    excelheader("value2") = "Las Ventas Netas"
+                End If
+                If Percentage = "on" Then
+                    excelheader("value3") = "Porcentaje"
+                End If
+            End If
+
+            ' Account No
+            If Request.Form("Ac") <> "on" Then
+                exportTable.Columns.Remove("value0")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To exportTable.Columns.Count - 1
+                    exportTable.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            exportTable.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
 
     End Sub
 
@@ -254,8 +392,9 @@ Partial Class AjaxPrinting
             PrintProfitLoss()
         End If
     End Sub
+    ' Print the single income statement
     Private Sub PrintIncomeStatementSingle()
-        'Print the single income statement
+
         Dim Language As Integer = Request.Form("language")
         Dim Padding As Integer = 0
         Dim Level As Integer = 1
@@ -274,6 +413,14 @@ Partial Class AjaxPrinting
         DetailLevel = Request.Form("detailLevel")
         Dim Denom As Int32 = Request.Form("Denom")
         Dim DenomString As String = ""
+
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         If (Denom > 1) Then
             If Language = 0 Then
                 If Denom = 10 Then
@@ -311,24 +458,32 @@ Partial Class AjaxPrinting
         ' Translate the Header
         If Language = 0 Then
             If Acc_No = "on" Then
-                HF_Acc = "Act No"
+                HF_Acc = "width:60px; font-size:8pt~Act No"
+            Else
+                HF_Acc = "width:0px; font-size:0pt~"
             End If
 
             If Percentage = "on" Then
-                HF_Pre = "Sales/Expenses(%)"
+                HF_Pre = "width:160px; font-size:8pt~Sales/Expenses(%)"
+            Else
+                HF_Pre = "width:0px; font-size:0pt~"
             End If
-            HF_PrintHeader.Value = "text-align:left; width:60px; font-size:8pt~" & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Account Description~text-align:right; width:120px; font-size:8pt~Dollar Amount~text-align:right; width:160px; font-size:8pt~" & HF_Pre & "~text-align:centre; width:70px;  font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Income Statement " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "text-align:left; " & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Account Description~text-align:right; width:120px; font-size:8pt~Dollar Amount~text-align:right; " & HF_Pre & "~text-align:centre; width:0px; font-size:0pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Income Statement " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             If Acc_No = "on" Then
-                HF_Acc = "Act No"
+                HF_Acc = "width:60px; font-size:8pt~Act No"
+            Else
+                HF_Acc = "width:0px; font-size:0pt~"
             End If
 
             If Percentage = "on" Then
-                HF_Pre = "Ventas/Gastos(%)"
+                HF_Pre = "width:160px; font-size:8pt~Ventas/Gastos(%)"
+            Else
+                HF_Pre = "width:0px; font-size:0pt~(%)"
             End If
-            HF_PrintHeader.Value = "text-align:left; width:60px; font-size:8pt~" & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Descripción De Cuenta~text-align:right; width:140px; font-size:8pt~Monto En Dólares~text-align:right; width:160px; font-size:8pt~" & HF_Pre & "~text-align:centre; width:70px;  font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado De Resultados " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "text-align:left; " & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Descripción De Cuenta~text-align:right; width:140px; font-size:8pt~Monto En Dólares~text-align:right; " & HF_Pre & "~text-align:centre; width:0px; font-size:8pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado De Resultados " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         Dim COA, Bal1, Bal2, Report As New DataTable
@@ -369,16 +524,16 @@ Partial Class AjaxPrinting
         COA.Columns.Add("Level", GetType(Integer))
         COA.Columns.Add("BalanceString", GetType(String))
         COA.Columns.Add("Dollar_Difference", GetType(Decimal))
+        COA.Columns.Add("DifferenceString", GetType(String))
         COA.Columns.Add("Percent_Difference", GetType(String))
         COA.Columns.Add("Percent_DifferenceString", GetType(String))
-        COA.Columns.Add("DifferenceString", GetType(String))
 
         'Denomination and rounding
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -484,7 +639,7 @@ Partial Class AjaxPrinting
             ' Format all the output for the paper
             COA.Rows(i)("BalanceString") = Format(Val(COA.Rows(i)("Balance").ToString), "$#,###.00")
             COA.Rows(i)("Percent_Difference") = Format(Val(COA.Rows(i)("Percent_Difference").ToString), "##.00") + "%"
-
+            If COA.Rows(i)("Percent_Difference").ToString = "0.##%" Or COA.Rows(i)("Percent_Difference").ToString = "%" Then COA.Rows(i)("Percent_Difference") = ""
             If Left(COA.Rows(i)("BalanceString").ToString, 1) = "-" Then COA.Rows(i)("BalanceString") = "(" & COA.Rows(i)("BalanceString").replace("-", "") & ")"
 
             If Request.Form("Round") = "on" Then
@@ -501,6 +656,7 @@ Partial Class AjaxPrinting
             If COA.Rows(i)("Percent_Difference").ToString = ".00%" Or COA.Rows(i)("Percent_Difference").ToString = "00%" Then COA.Rows(i)("Percent_Difference") = ""
             If COA.Rows(i)("DifferenceString").ToString = "$.00" Or COA.Rows(i)("DifferenceString").ToString = "$" Then COA.Rows(i)("DifferenceString") = ""
             If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = "" ' hard coded
+
         Next
         For i As Integer = COA.Rows.Count - 1 To 0 Step -1
             Dim AlreadyDeleted As Boolean = False
@@ -555,6 +711,14 @@ Partial Class AjaxPrinting
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
 
+
+            If Percentage = "on" Then
+                If (Left(Per_Style.ToString, 1) = "-") Then
+                    Per_Style = "(" & Per_Style.Replace("-", "") & ")"
+                    Per_Style = Per_Style & "color: red !important;"
+                End If
+            End If
+
             If Percentage = "on" Then
                 Per_Style = "text-align:right;font-size:8pt;width: 10px;"
             End If
@@ -574,16 +738,84 @@ Partial Class AjaxPrinting
 
         Report.Rows.Add(" text-align:left; font-size:0pt; width: 10px;", "", Style, "PROFIT/LOSS", Style2, "<span style=""" + StyleFinish + """>" + ProfitAndLoss + "</span>", "font-size:8pt; width:50px ;text-align:right ", "", "font-size:8pt; width:100px", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
 
-
         RPT_PrintReports.DataSource = Report
         RPT_PrintReports.DataBind()
 
         Conn.Close()
 
         PNL_PrintReports.Visible = True
+
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString")
+            COA.Columns.Remove("Dollar_Difference")
+            COA.Columns.Remove("Percent_DifferenceString")
+            COA.Columns.Remove("Balance")
+
+            ' Adding Total Profit and Loss
+            COA.Rows.Add("", "PROFIT AND LOSS", "", ProfitAndLoss, "")
+
+            ' Rename the existing column name to value
+            For i = 0 To COA.Columns.Count - 1
+                COA.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = COA.Columns.Count To 25
+                COA.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = COA.NewRow()
+            excelheader("value0") = "Account No"
+            excelheader("value1") = "Name"
+            excelheader("value2") = "Currency"
+            excelheader("value3") = "Balance"
+            excelheader("value4") = "Percentage"
+            COA.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To COA.Columns.Count - 1
+                COA.Rows(0)(i) = "<b>" & COA.Rows(0)(i).ToString & "</b>"
+            Next
+
+            ' Percentage
+            If Percentage <> "on" Then
+                COA.Columns.Remove("value4")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            ' Account No
+            If Request.Form("Ac") <> "on" Then
+                COA.Columns.Remove("value0")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            RPT_Excel.DataSource = COA
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
+    'Print the summary trail sheet
     Private Sub PrintSummaryTrail()
-        'Print the summary trail sheet
+
         Dim Language As Integer = Request.Form("language")
         Dim firstDate As String
         Dim seconDate As String
@@ -593,6 +825,14 @@ Partial Class AjaxPrinting
         DetailLevel = Request.Form("detailLevel")
         Dim Denom As Int32 = Request.Form("Denom")
         Dim DenomString As String = ""
+
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         If (Denom > 1) Then
             If Language = 0 Then
                 If Denom = 10 Then
@@ -626,10 +866,10 @@ Partial Class AjaxPrinting
         'Set the header
         If Language = 0 Then
             HF_PrintHeader.Value = "text-align:left; width:0px; font-size:0pt~~text-align:left; width:550px; font-size:8pt~Account Name~text-align:right; width:120px; font-size:8pt~Beginning Balance~text-align:right; width:120px; font-size:8pt~Debit~text-align:right; width:120px; font-size:8pt~Credit~text-align:right; width:120px; font-size:8pt~Net actvity~text-align:right; width:120px; font-size:8pt~Closing Balance"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Summary Trial Balance " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 0'></span><span style='position: absolute; margin-left: 0.5in'></span><span style='position: absolute; margin-left: 1.7in;'></span><span style='position: absolute; margin-left: 3.3in'></span><span style='position: absolute; margin-left: 4.5in'></span><span style='position: absolute; margin-left: 5.5in'></span><span style='position: absolute; margin-left: 6.8in;'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Summary Trial Balance " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 0'></span><span style='position: absolute; margin-left: 0.5in'></span><span style='position: absolute; margin-left: 1.7in;'></span><span style='position: absolute; margin-left: 3.3in'></span><span style='position: absolute; margin-left: 4.5in'></span><span style='position: absolute; margin-left: 5.5in'></span><span style='position: absolute; margin-left: 6.8in;'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "text-align:left; width:0px; font-size:0pt~~text-align:left; width:550px; font-size:8pt~Nombre De La Cuenta~text-align:right; width:120px; font-size:8pt~Balance Inicial~text-align:right; width:120px; font-size:8pt~Débito~text-align:right; width:120px; font-size:8pt~Crédito~text-align:right; width:120px; font-size:8pt~Actividad Neto~text-align:right; width:120px; font-size:8pt~Balance De Cierre"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Resumen Del Balance De Prueba " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso en " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 0'></span><span style='position: absolute; margin-left: 0.5in'></span><span style='position: absolute; margin-left: 1.7in;'></span><span style='position: absolute; margin-left: 3.3in'></span><span style='position: absolute; margin-left: 4.5in'></span><span style='position: absolute; margin-left: 5.5in'></span><span style='position: absolute; margin-left: 6.8in;'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Resumen Del Balance De Prueba " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso en " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 0'></span><span style='position: absolute; margin-left: 0.5in'></span><span style='position: absolute; margin-left: 1.7in;'></span><span style='position: absolute; margin-left: 3.3in'></span><span style='position: absolute; margin-left: 4.5in'></span><span style='position: absolute; margin-left: 5.5in'></span><span style='position: absolute; margin-left: 6.8in;'></span></div>"
         End If
         Dim COA, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
@@ -640,23 +880,21 @@ Partial Class AjaxPrinting
         Conn.Open()
 
         If Language = 0 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @startDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No"
         ElseIf Language = 1 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No"
         End If
         SQLCommand.Parameters.Clear()
-        SQLCommand.Parameters.AddWithValue("@enddate", DatStart)
+        SQLCommand.Parameters.AddWithValue("@endDate", DatStart)
         SQLCommand.Parameters.AddWithValue("@date", DatSecond)
+        SQLCommand.Parameters.AddWithValue("@startDate", DatStart.AddDays(-1))
         DataAdapter.Fill(COA)
 
-
-        'System.diagnostics.Debug.WriteLine(SQLCommand.CommandText + DatSecond.ToString)
-
         COA.Columns.Add("BalanceString", GetType(String))
-        COA.Columns.Add("NextDateBalanceString", GetType(String))
-        COA.Columns.Add("CreditString", GetType(String))
         COA.Columns.Add("DebitString", GetType(String))
+        COA.Columns.Add("CreditString", GetType(String))
         COA.Columns.Add("NetString", GetType(String))
+        COA.Columns.Add("NextDateBalanceString", GetType(String))
 
         Dim finalCredit As Double
         Dim finalDebit As Double
@@ -676,7 +914,7 @@ Partial Class AjaxPrinting
             newRow("Credit") = finalCredit
             newRow("Debit") = finalDebit
             newRow("NetActivity") = finalNet
-            newRow("Name") = "0001-01-01"
+            newRow("Name") = "Total"
 
             newRow("Account_Type") = "33"
             newRow.EndEdit()
@@ -685,13 +923,12 @@ Partial Class AjaxPrinting
 
         End Try
 
-
         'Denomination and rounding
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -753,10 +990,14 @@ Partial Class AjaxPrinting
         Next
 
         Dim Style As String = "text-align:left; font-size:8pt; padding: 0px 0px 0px; min-width: 2.5in; max-width: 2.5in;"
+        Dim StyleID As String = "font-size:0pt; width: 0px;"
+        If Request.Form("Ac") = "on" Then
+            StyleID = "font-size:8pt; width: 25px;"
+        End If
         For i = 0 To COA.Rows.Count - 1
             Style = "text-align:left; font-size:8pt; padding: 3px 5px 3px 5px; width: 5in;"
             If COA.Rows(i)("Account_Type") > 90 Then Style = Style & "; font-weight:bold"
-            Report.Rows.Add("padding: 0px 0px 0px 0px;border-top:solid 0px; text-align:left; font-size:0pt; width: 25px;", COA.Rows(i)("Account_No").ToString, Style + "width: 1px;border-top:solid 0px; min-width: 1in; max-width: 1in;", COA.Rows(i)("Name").ToString, "padding: 3px 5px 3px 5px;border-top:solid 0px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;", COA.Rows(i)("BalanceString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;", COA.Rows(i)("DebitString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;padding-left: 0.2in;", COA.Rows(i)("CreditString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; border-top:solid 0px;min-width: 1in;max-width: 1in;", COA.Rows(i)("NetString"), "padding: 3px 5px 3px 5px; text-align:right; border-top:solid 0px;font-size:8pt; padding-left: 0.2in;", COA.Rows(i)("NextDateBalanceString"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+            Report.Rows.Add("padding: 0px 0px 0px 0px;border-top:solid 0px; text-align:left; " & StyleID, COA.Rows(i)("Account_No").ToString, Style + "width: 1px;border-top:solid 0px; min-width: 1in; max-width: 1in;", COA.Rows(i)("Name").ToString, "padding: 3px 5px 3px 5px;border-top:solid 0px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;", COA.Rows(i)("NextDateBalanceString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;", COA.Rows(i)("DebitString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt;min-width: 1in;max-width: 1in;padding-left: 0.2in;", COA.Rows(i)("CreditString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; border-top:solid 0px;min-width: 1in;max-width: 1in;", COA.Rows(i)("NetString"), "padding: 3px 5px 3px 5px; text-align:right; border-top:solid 0px;font-size:8pt; padding-left: 0.2in;", COA.Rows(i)("BalanceString"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
         Next
         Report.Rows.Add("padding: 0px 0px 0px 0px;font-size:1pt;", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "border-top:double 0px", "", "border-top:double 0px", "", "border-top:double 4px", "", "border-top:double 4px", "", "border-top:double 0px", "")
         RPT_PrintReports.DataSource = Report
@@ -765,6 +1006,65 @@ Partial Class AjaxPrinting
         Conn.Close()
 
         PNL_PrintReports.Visible = True
+
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Balance")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Transaction_No")
+            COA.Columns.Remove("Memo")
+            COA.Columns.Remove("memo2")
+            COA.Columns.Remove("Credit")
+            COA.Columns.Remove("Debit")
+            COA.Columns.Remove("NetActivity")
+            COA.Columns.Remove("NextDateBalance")
+
+            ' Rename the existing column name to value
+            For i = 0 To COA.Columns.Count - 1
+                COA.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = COA.Columns.Count To 25
+                COA.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = COA.NewRow()
+            excelheader("value0") = "Account No"
+            excelheader("value1") = "Account Name"
+            excelheader("value2") = "Beginning Balance"
+            excelheader("value3") = "Debit"
+            excelheader("value4") = "Credit"
+            excelheader("value5") = "Net Activity"
+            excelheader("value6") = "Closing Balance"
+            COA.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To COA.Columns.Count - 1
+                COA.Rows(0)(i) = "<b>" & COA.Rows(0)(i).ToString & "</b>"
+            Next
+
+            ' Account No
+            If Request.Form("Ac") <> "on" Then
+                COA.Columns.Remove("value0")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            RPT_Excel.DataSource = COA
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
     Private Sub PrintDetailTrial()
         'Print the Detail Trial Sheet
@@ -774,6 +1074,14 @@ Partial Class AjaxPrinting
         Dim Denom As Int32 = Request.Form("Denom")
         Dim id As String = Request.Form("id")
         Dim DenomString As String = ""
+
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         If (Denom > 1) Then
             If Denom = 10 Then
                 DenomString = "(In Tenth)"
@@ -791,9 +1099,7 @@ Partial Class AjaxPrinting
         If StartDate = "" Then StartDate = Now().ToString("yyyy-MM-dd")
         If EndDate = "" Then EndDate = Now().AddDays(-30).ToString("yyyy-MM-dd")
 
-
         HF_PrintHeader.Value = "text-align:left; width:100px; font-size:8pt~~text-align:left; width:350px; font-size:8pt~~text-align:right; width:120px; font-size:8pt~"
-
 
         Dim COA, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
@@ -803,7 +1109,7 @@ Partial Class AjaxPrinting
 
         Conn.Open()
         'Get the matching name with the id
-        SQLCommand.CommandText = "SELECT Transaction_Date, fk_currency_id,Transaction_No, Document_Type, Debit_Amount, Credit_Amount, Balance, Memo, Document_ID, fk_Account_ID,rowID FROM ACC_GL WHERE ((Transaction_Date >= @startDate AND Transaction_Date <= @endDate) AND fk_Account_ID = @id) ORDER BY Transaction_Date asc, rowID desc"
+        SQLCommand.CommandText = "SELECT Transaction_Date, fk_currency_id,Transaction_No, Document_Type, Debit_Amount, Credit_Amount, Balance, Memo, Document_ID, fk_Account_ID,rowID FROM ACC_GL WHERE ((Transaction_Date >= @startDate AND Transaction_Date <= @endDate) AND fk_Account_ID = @id) ORDER BY Transaction_Date asc, rowID asc"
         SQLCommand.Parameters.Clear()
         SQLCommand.Parameters.AddWithValue("@startDate", StartDate)
         SQLCommand.Parameters.AddWithValue("@endDate", EndDate)
@@ -812,12 +1118,11 @@ Partial Class AjaxPrinting
         'If we have a matching name output it to the header
         Try
             'Set the page header, this is below the SQL so we can get the currency
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accName") + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'>Posting Date</span><span style='position: absolute; margin-left: 1in'>Doc No</span><span style='position: absolute; margin-left: 2.5in'>Description</span><span style='position: absolute; margin-left: 4.7in;'>Debit</span><span style='position: absolute; margin-left: 5.8in'>Credit</span><span style='position: absolute; margin-left: 6.7in'>Balance</span></div></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accName") + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'>Posting Date</span><span style='position: absolute; margin-left: 1in'>Doc No</span><span style='position: absolute; margin-left: 2.5in'>Description</span><span style='position: absolute; margin-left: 4.7in;'>Debit</span><span style='position: absolute; margin-left: 5.8in'>Credit</span><span style='position: absolute; margin-left: 6.7in'>Balance</span></div></div>"
         Catch ex As Exception
             'Set the page header, this is below the SQL so we can get the currency
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + id + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'>Posting Date</span><span style='position: absolute; margin-left: 1in'>Doc No</span><span style='position: absolute; margin-left: 2.5in'>Description</span><span style='position: absolute; margin-left: 4.7in;'>Debit</span><span style='position: absolute; margin-left: 5.8in'>Credit</span><span style='position: absolute; margin-left: 6.7in'>Balance</span></div></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + id + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'>Posting Date</span><span style='position: absolute; margin-left: 1in'>Doc No</span><span style='position: absolute; margin-left: 2.5in'>Description</span><span style='position: absolute; margin-left: 4.7in;'>Debit</span><span style='position: absolute; margin-left: 5.8in'>Credit</span><span style='position: absolute; margin-left: 6.7in'>Balance</span></div></div>"
         End Try
-
 
         COA.Columns.Add("BalanceString", GetType(String))
         COA.Columns.Add("CreditString", GetType(String))
@@ -848,16 +1153,13 @@ Partial Class AjaxPrinting
 
         End Try
 
-
-
-
         'Denomination and rounding
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString) / 5) * 5
-                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString))
+                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -923,6 +1225,7 @@ Partial Class AjaxPrinting
         Dim accNo As String
         Dim Denom As Int32 = Request.Form("Denom")
         Dim DenomString As String = ""
+        Dim BalDate As Date
         If (Denom > 1) Then
             If Language = 0 Then
                 If Denom = 10 Then
@@ -972,15 +1275,22 @@ Partial Class AjaxPrinting
             HF_PrintHeader.Value = "text-align:left; width:100px; font-size:8pt~ Fecha~text-align:left; width:350px; font-size:8pt~Núm Del Doc~text-align:left; width:120px; font-size:8pt~Descripción~text-align:right; width:120px; font-size:8pt~Débito~text-align:right; width:120px; font-size:8pt~Crédito~text-align:right; width:120px; font-size:8pt~El Balance"
         End If
 
-        Dim COA, Bal1, Bal2, Report As New DataTable
+        Dim COA, Bal, Report As New DataTable
         PNL_Summary.Visible = True
+
+        Dim Fiscal As New DataTable
 
         SQLCommand.Connection = Conn
         DataAdapter.SelectCommand = SQLCommand
 
         Conn.Open()
 
-        SQLCommand.CommandText = "SELECT rowID,Transaction_Date, Transaction_No, Document_Type, Debit_Amount, Credit_Amount, Balance, Memo, Document_ID, fk_Account_ID,Account_No,ACC_GL.fk_Currency_ID FROM ACC_GL LEFT JOIN ACC_GL_Accounts on ACC_GL_Accounts.Account_ID = ACC_GL.fk_Account_ID WHERE ((Transaction_Date >= @startDate AND Transaction_Date <= @endDate) AND Account_No = @accNo) ORDER BY Transaction_Date asc, rowID desc"
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
+        SQLCommand.CommandText = "SELECT rowID, CAST (Transaction_Date AS varchar(50)) as Transaction_Date, Transaction_No, Document_Type, Debit_Amount, Credit_Amount, Balance, Memo, Document_ID, fk_Account_ID,Account_No,ACC_GL.fk_Currency_ID FROM ACC_GL LEFT JOIN ACC_GL_Accounts on ACC_GL_Accounts.Account_ID = ACC_GL.fk_Account_ID WHERE ((Transaction_Date >= @startDate AND Transaction_Date <= @endDate) AND Account_No = @accNo) ORDER BY Transaction_Date asc, rowID asc"
         SQLCommand.Parameters.Clear()
         SQLCommand.Parameters.AddWithValue("@startDate", StartDate)
         SQLCommand.Parameters.AddWithValue("@endDate", EndDate)
@@ -990,25 +1300,24 @@ Partial Class AjaxPrinting
         If Language = 0 Then
             Try
                 'Set the page header, this is below the SQL so we can get the currency
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
             Catch ex As Exception
                 'Set the page header, this is below the SQL so we can get the currency
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detail Trial Balance " + DenomString + "<br/>For the Period " & StartDate & " to " & EndDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
             End Try
         ElseIf Language = 1 Then
             Try
                 'Set the page header, this is below the SQL so we can get the currency
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detalle Balance De Prueba " + DenomString + "<br/>Para el Periodo " & StartDate & " a " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detalle Balance De Prueba " + DenomString + "<br/>Para el Periodo " & StartDate & " a " & EndDate & " - " + COA.Rows(0)("fk_Currency_ID").ToString + "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
             Catch ex As Exception
                 'Set the page header, this is below the SQL so we can get the currency
-                HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Detalle Balance De Prueba " + DenomString + "<br/>Para el Periodo " & StartDate & " a " & EndDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
+                HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Detalle Balance De Prueba " + DenomString + "<br/>Para el Periodo " & StartDate & " a " & EndDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><br/><br/><span>" + Request.Form("accNo") + " " + value.ToString() + "</span></span><br><div style='Width: 8.5in; position: absolute; margin-top: -1px;'><span style='position: absolute; margin-left: -0.2in'></span><span style='position: absolute; margin-left: 1in'></span><span style='position: absolute; margin-left: 2.5in'></span><span style='position: absolute; margin-left: 4.7in;'></span><span style='position: absolute; margin-left: 5.8in'></span><span style='position: absolute; margin-left: 6.7in'></span></div></div>"
             End Try
         End If
 
-
-        COA.Columns.Add("BalanceString", GetType(String))
-        COA.Columns.Add("CreditString", GetType(String))
         COA.Columns.Add("DebitString", GetType(String))
+        COA.Columns.Add("CreditString", GetType(String))
+        COA.Columns.Add("BalanceString", GetType(String))
 
         Dim finalCredit As Double
         Dim finalDebit As Double
@@ -1034,16 +1343,13 @@ Partial Class AjaxPrinting
 
         End Try
 
-
-
-
         'Denomination and rounding
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString) / 5) * 5
-                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString))
+                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -1081,10 +1387,40 @@ Partial Class AjaxPrinting
 
         COA.AcceptChanges()
 
+        ' Adding Beginning balance
+        BalDate = StartDate
+        SQLCommand.CommandText = "SELECT TOP 1 (rowID), CAST (Transaction_Date AS varchar(50)) as Transaction_Date, Transaction_No, Document_Type, Debit_Amount, Credit_Amount, Balance, Memo, Document_ID, fk_Account_ID,Account_No,ACC_GL.fk_Currency_ID FROM ACC_GL LEFT JOIN ACC_GL_Accounts on ACC_GL_Accounts.Account_ID = ACC_GL.fk_Account_ID WHERE (Transaction_Date >= @startDate AND Account_No = @accNo) ORDER BY Transaction_Date asc, rowID desc"
+        SQLCommand.Parameters.Clear()
+        SQLCommand.Parameters.AddWithValue("@startDate", BalDate.AddDays(-1).ToString("yyyy-MM-dd"))
+        SQLCommand.Parameters.AddWithValue("@accNo", accNo)
+        DataAdapter.Fill(Bal)
+
+        Bal.Columns.Add("BalanceString", GetType(String))
+
         For i = 1 To 15
             Report.Columns.Add("Style" + i.ToString, GetType(String))
             Report.Columns.Add("Field" + i.ToString, GetType(String))
         Next
+
+        ' Formatting for Bal Datatable
+        If Request.Form("Round") = "on" Then
+            Bal.Rows(0)("BalanceString") = Format(Val(Bal.Rows(0)("Balance").ToString), "$#,###")
+        Else
+            Bal.Rows(0)("BalanceString") = Format(Val(Bal.Rows(0)("Balance").ToString), "$#,###.00")
+        End If
+        If Left(Bal.Rows(0)("BalanceString").ToString, 1) = "-" Then Bal.Rows(0)("BalanceString") = "(" & Bal.Rows(0)("BalanceString").replace("-", "") & ")"
+
+        ' Create datarow to insert value to COA datatable
+        Dim coaHeader As DataRow = COA.NewRow()
+        coaHeader.BeginEdit()
+        ' newRow("Balance") = COA.Rows(COACount)("Balance")
+        coaHeader("Transaction_Date") = BalDate.ToString("yyyy-MM-dd")
+        coaHeader("Memo") = "Beginning Balance"
+        coaHeader("Balance") = Bal.Rows(0)("Balance").ToString
+        coaHeader("BalanceString") = Bal.Rows(0)("BalanceString").ToString
+
+        coaHeader.EndEdit()
+        COA.Rows.InsertAt(coaHeader, 0)
 
         For i = 0 To COA.Rows.Count - 1
             Dim Transaction_Date As Date = COA.Rows(i)("Transaction_Date").ToString()
@@ -1100,102 +1436,50 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+
+            COA.Columns.Remove("rowID")
+            COA.Columns.Remove("Document_Type")
+            COA.Columns.Remove("Debit_Amount")
+            COA.Columns.Remove("Credit_Amount")
+            COA.Columns.Remove("Balance")
+            COA.Columns.Remove("Document_ID")
+            COA.Columns.Remove("fk_Account_ID")
+            COA.Columns.Remove("Account_No")
+            COA.Columns.Remove("fk_Currency_ID")
+
+            ' Rename the existing column name to value
+            For i = 0 To COA.Columns.Count - 1
+                COA.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = COA.Columns.Count To 25
+                COA.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = COA.NewRow()
+            excelheader("value0") = "Posting Date"
+            excelheader("value1") = "Doc No"
+            excelheader("value2") = "Description"
+            excelheader("value3") = "Debit"
+            excelheader("value4") = "Credit"
+            excelheader("value5") = "Balance"
+            COA.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To COA.Columns.Count - 1
+                COA.Rows(0)(i) = "<b>" & COA.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = COA
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
-    'Private Sub PrintDetailTrail()
-    '    Dim firstDate As String
-    '    Dim seconDate As String
-    '    firstDate = Request.Form("FirstDate")
-    '    seconDate = Request.Form("SecondDate")
-    '    Dim DetailLevel As Integer
-    '    DetailLevel = Request.Form("detailLevel")
-
-    '    If firstDate = "" Then firstDate = Now().ToString("yyyy-MM-dd")
-    '    If seconDate = "" Then seconDate = Now().AddDays(-365).ToString("yyyy-MM-dd")
-    '    Dim DatStart, DatSecond As Date
-    '    Try
-    '        DatStart = firstDate
-    '        DatSecond = seconDate
-    '    Catch ex As Exception
-    '        DatStart = Now()
-    '        DatSecond = Now().AddDays(-365)
-    '    End Try
-
-    '    HF_PrintHeader.Value = "text-align:left; width:100px; font-size:8pt~~text-align:left; width:350px; font-size:8pt~~text-align:right; width:120px; font-size:8pt~"
-    '    HF_PrintTitle.Value = "Axiom Plastics Detail Trail Report From " & DatStart & " to " & DatSecond & "<br/><span style=""font-size:6pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 0'>ID #</span><span style='position: absolute; margin-left: 0.5in'>Account Name</span><span style='position: absolute; margin-left: 1.5in'>Memo</span><span style='position: absolute; margin-left: 2.5in;'>" & DatStart & "</span><span style='position: absolute; margin-left: 3.5in'>Credit</span><span style='position: absolute; margin-left: 4.5in'>Debit</span><span style='position: absolute; margin-left: 5.5in'>Net Activity</span><span style='position: absolute; margin-left: 6.5in;'>" & DatSecond & "</span></div>"
-    '    Dim COA, Bal1, Bal2, Report As New DataTable
-    '    PNL_Summary.Visible = True
-
-    '    SQLCommand.Connection = Conn
-    '    DataAdapter.SelectCommand = SQLCommand
-
-    '    Conn.Open()
-
-    '    SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
-    '    SQLCommand.Parameters.Clear()
-    '    SQLCommand.Parameters.AddWithValue("@enddate", DatStart)
-    '    SQLCommand.Parameters.AddWithValue("@date", DatSecond)
-    '    DataAdapter.Fill(COA)
-
-
-    '    'System.diagnostics.Debug.WriteLine(SQLCommand.CommandText + DatSecond.ToString)
-
-    '    COA.Columns.Add("BalanceString", GetType(String))
-    '    COA.Columns.Add("NextDateBalanceString", GetType(String))
-    '    COA.Columns.Add("CreditString", GetType(String))
-    '    COA.Columns.Add("DebitString", GetType(String))
-    '    COA.Columns.Add("NetString", GetType(String))
-
-    '    For i = 0 To COA.Rows.Count - 1
-    '        ' Format all the output for the paper
-    '        COA.Rows(i)("BalanceString") = Format(Val(COA.Rows(i)("Balance").ToString), "$#,###.00")
-    '        If Left(COA.Rows(i)("BalanceString").ToString, 1) = "-" Then COA.Rows(i)("BalanceString") = "(" & COA.Rows(i)("BalanceString").replace("-", "") & ")"
-    '        COA.Rows(i)("NextDateBalanceString") = Format(Val(COA.Rows(i)("NextDateBalance").ToString), "$#,###.00")
-    '        If Left(COA.Rows(i)("NextDateBalanceString").ToString, 1) = "-" Then COA.Rows(i)("NextDateBalanceString") = "(" & COA.Rows(i)("NextDateBalanceString").replace("-", "") & ")"
-    '        COA.Rows(i)("CreditString") = Format(Val(COA.Rows(i)("Credit").ToString), "$#,###.00")
-    '        If Left(COA.Rows(i)("CreditString").ToString, 1) = "-" Then COA.Rows(i)("CreditString") = "(" & COA.Rows(i)("CreditString").replace("-", "") & ")"
-    '        COA.Rows(i)("DebitString") = Format(Val(COA.Rows(i)("Debit").ToString), "$#,###.00")
-    '        If Left(COA.Rows(i)("DebitString").ToString, 1) = "-" Then COA.Rows(i)("DebitString") = "(" & COA.Rows(i)("DebitString").replace("-", "") & ")"
-    '        COA.Rows(i)("NetString") = Format(Val(COA.Rows(i)("NetActivity").ToString), "$#,###.00")
-
-    '        If Left(COA.Rows(i)("NetString").ToString, 1) = "-" Then COA.Rows(i)("NetString") = "(" & COA.Rows(i)("NetString").replace("-", "") & ")"
-    '        'If Val(COA.Rows(i)("Level").ToString) > 1 Then COA.Rows(i).Delete()
-
-    '        If COA.Rows(i)("BalanceString").ToString = "$.00" Then COA.Rows(i)("BalanceString") = ""
-    '        If COA.Rows(i)("NextDateBalanceString").ToString = "$.00" Then COA.Rows(i)("NextDateBalanceString") = ""
-    '        If COA.Rows(i)("CreditString").ToString = "$.00" Then COA.Rows(i)("CreditString") = ""
-    '        If COA.Rows(i)("DebitString").ToString = "$.00" Then COA.Rows(i)("DebitString") = ""
-    '        If COA.Rows(i)("NetString").ToString = "$.00" Then COA.Rows(i)("NetString") = ""
-    '    Next
-    '    For i As Integer = COA.Rows.Count - 1 To 0 Step -1
-    '        ' Delete the rows that arnt above the detail level 
-    '        If Request.Item("showZeros") = "off" And COA.Rows(i)("Account_Type") < 90 Then
-    '            If COA.Rows(i)("BalanceString").ToString = "" And COA.Rows(i)("NextDateBalanceString").ToString = "" And COA.Rows(i)("CreditString").ToString = "" And COA.Rows(i)("DebitString").ToString = "" And COA.Rows(i)("NetString").ToString = "" Then
-    '                COA.Rows(i).Delete()
-    '            End If
-    '        End If
-    '    Next i
-
-    '    COA.AcceptChanges()
-
-    '    For i = 1 To 15
-    '        Report.Columns.Add("Style" + i.ToString, GetType(String))
-    '        Report.Columns.Add("Field" + i.ToString, GetType(String))
-    '    Next
-
-    '    Dim Style As String = "text-align:left; font-size:8pt; padding: 3px 5px 3px; "
-    '    For i = 0 To COA.Rows.Count - 1
-    '        Style = "text-align:left; font-size:8pt; padding: 3px 5px 3px 5px; width: 5in;"
-    '        If COA.Rows(i)("Account_Type") > 90 Then Style = Style & "; font-weight:bold"
-    '        Report.Rows.Add("padding: 3px 5px 3px 5px; text-align:left; font-size:8pt; width: 25px;", COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("memo2"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("BalanceString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("DebitString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("CreditString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("NetString"), "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt", COA.Rows(i)("NextDateBalanceString"), "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-    '    Next
-
-    '    RPT_PrintReports.DataSource = Report
-    '    RPT_PrintReports.DataBind()
-
-    '    Conn.Close()
-
-    '    PNL_PrintReports.Visible = True
-    'End Sub
 
     Private Sub PrintBankRec()
 
@@ -1365,56 +1649,7 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
-
-        'Dim COA, Bal, Report As New DataTable
-        'PNL_Summary.Visible = True
-
-        'SQLCommand.Connection = Conn
-        'DataAdapter.SelectCommand = SQLCommand
-
-        'Conn.Open()
-
-        'SQLCommand.CommandText = "SELECT * FROM ACC_GL LEFT JOIN ACC_GL_Accounts on Acc_Gl.fk_Account_ID = ACC_GL_Accounts.Account_ID WHERE (fk_Account_ID = @Account_number) AND (locked = 0) AND Transaction_Date <= @date ORDER BY " + sort_param + updown
-        'SQLCommand.Parameters.Clear()
-        'SQLCommand.Parameters.AddWithValue("@Account_number", Account_number1)
-        'SQLCommand.Parameters.AddWithValue("@date", date1)
-        'System.Diagnostics.Debug.WriteLine(SQLCommand.CommandText)
-        'DataAdapter.Fill(COA)
-
-        'COA.AcceptChanges()
-        'COA.Columns.Add("CreditString", GetType(String))
-        'COA.Columns.Add("DebitString", GetType(String))
-
-        'For i = 1 To 15
-        '    Report.Columns.Add("Style" + i.ToString, GetType(String))
-        '    Report.Columns.Add("Field" + i.ToString, GetType(String))
-        'Next
-        'Dim smallStyle, medStyle, largeStyle As String
-        'For i = 0 To COA.Rows.Count - 1
-
-        '    If (COA.Rows(i)("Credit_Amount").ToString = "0.00") Then
-        '        COA.Rows(i)("CreditString") = ""
-        '    Else
-        '        COA.Rows(i)("CreditString") = Format(Val(COA.Rows(i)("Credit_Amount").ToString), "$#,###.00")
-
-        '    End If
-
-        '    If (COA.Rows(i)("Debit_Amount").ToString = "0.00") Then
-        '        COA.Rows(i)("DebitString") = ""
-        '    Else
-        '        COA.Rows(i)("DebitString") = Format(Val(COA.Rows(i)("Debit_Amount").ToString), "$#,###.00")
-        '    End If
-
-        '    smallStyle = "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px; min-width: 1in; max-width: 1in;"
-        '    medStyle = "text-align:left; font-size:9pt; padding: 3px 5px 3px 5px; min-width: 1.5in; max-width: 1.5in;"
-        '    largeStyle = "text-align:left; font-size:9pt; padding: 3px 5px 3px; min-width: 2in; max-width: 2in; "
-        '    Dim Transaction_Date As Date = COA.Rows(i)("Transaction_Date").ToString()
-
-        '    Report.Rows.Add(medStyle, Transaction_Date.ToString("yyyy-MM-dd"), largeStyle, COA.Rows(i)("Memo").ToString, largeStyle, COA.Rows(i)("CreditString"), largeStyle, COA.Rows(i)("DebitString"), smallStyle, COA.Rows(i)("fk_currency_id"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
-        'Next
-
     End Sub
-
     ' Balance Sheet
     Private Sub PrintBalance()
 
@@ -1429,6 +1664,13 @@ Partial Class AjaxPrinting
         Dim HF_Acc As String = ""
 
         Dim RE As Decimal = 0
+
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
 
         If (Denom > 1) Then
             If Language = 0 Then
@@ -1454,19 +1696,21 @@ Partial Class AjaxPrinting
 
         If DetailLevel = 0 Then DetailLevel = 7
         If Acc_No = "on" Then
-            HF_Acc = "Act No"
+            HF_Acc = "width:50px; font-size:8pt~Act No"
+        Else
+            HF_Acc = "width:0px; font-size:0pt~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
-            HF_PrintHeader.Value = "text-align:left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; font-size:8pt~Account Name~text-align:right; width:100px; font-size:8pt~Balance~text-align:left; width:60px; font-size:8pt~"
+            HF_PrintHeader.Value = "text-align:left; " + HF_Acc & "~text-align:left; font-size:8pt~Account Name~text-align:right; width:100px; font-size:8pt~Balance~text-align:left; width:0px; font-size:0pt~"
 
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Balance Sheet " + DenomString + "<br/>As Of " & AsAt & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Balance Sheet " + DenomString + "<br/>As Of " & AsAt & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
 
         ElseIf Language = 1 Then
-            HF_PrintHeader.Value = "text-align:left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta~text-align:right; width:100px; font-size:8pt~El Balance~text-align:left; width:60px; font-size:8pt~"
+            HF_PrintHeader.Value = "text-align:left; " + HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta~text-align:right; width:100px; font-size:8pt~El Balance~text-align:left; width:0px; font-size:0pt~"
 
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja De Balance " + DenomString + "<br/>A Partir De " & AsAt & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Hoja De Balance " + DenomString + "<br/>A Partir De " & AsAt & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span>"
         End If
 
         Dim COA, Bal, DataT, Report As New DataTable
@@ -1482,20 +1726,20 @@ Partial Class AjaxPrinting
         DataAdapter.Fill(DataT)
 
         If Language = 0 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Totalling_Minus From ACC_GL_Accounts order by Account_No"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Totalling_Minus From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 10000 and Account_No<'40000' order by Account_No"
             SQLCommand.Parameters.Clear()
             DataAdapter.Fill(COA)
 
-            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, (Select Top 1 Balance from ACC_GL where Transaction_Date <= @date and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 10000 and Account_No<'40000' order by Account_No"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, (Select Top 1 Balance from ACC_GL where Transaction_Date <= @date and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 order by Account_No"
             SQLCommand.Parameters.Clear()
             SQLCommand.Parameters.AddWithValue("@date", AsAt)
             DataAdapter.Fill(Bal)
         ElseIf Language = 1 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Totalling_Minus From ACC_GL_Accounts order by Account_No"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Totalling_Minus From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 10000 and Account_No<'40000' order by Account_No"
             SQLCommand.Parameters.Clear()
             DataAdapter.Fill(COA)
 
-            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, (Select Top 1 Balance from ACC_GL where Transaction_Date <= @date and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 10000 and Account_No<'40000' order by Account_No"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, (Select Top 1 Balance from ACC_GL where Transaction_Date <= @date and fk_Account_Id = Account_ID order by Transaction_Date desc, rowID desc) as Balance From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 order by Account_No"
             SQLCommand.Parameters.Clear()
             SQLCommand.Parameters.AddWithValue("@date", AsAt)
             DataAdapter.Fill(Bal)
@@ -1538,8 +1782,8 @@ Partial Class AjaxPrinting
             Next
         Next
 
-        For j = 0 To COA.Rows.Count - 1
-            If COA.Rows(j)("Account_No") = "39000" Then COA.Rows(j)("Balance") = RE
+        For j = 0 To Bal.Rows.Count - 1
+            If Bal.Rows(j)("Account_No") = "39000" Then Bal.Rows(j)("Balance") = RE
             COA.AcceptChanges()
 
         Next
@@ -1638,14 +1882,11 @@ Partial Class AjaxPrinting
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("BeforeBalance") = Math.Round(Val(COA.Rows(i)("BeforeBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
                     COA.Rows(i)("Balance") = denominatedValue
-                    Dim denominatedValue2 As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
-                    COA.Rows(i)("BeforeBalance") = denominatedValue2
                 End If
             Next
         End If
@@ -1666,14 +1907,11 @@ Partial Class AjaxPrinting
 
         COA.AcceptChanges()
 
-
         If NoZeros = "off" Then
             For i = 0 To COA.Rows.Count - 1
                 If COA.Rows(i)("Balance") = "" And COA.Rows(i)("Account_Type").ToString < 90 Then COA.Rows(i).Delete()
             Next
         End If
-
-
 
         COA.AcceptChanges()
 
@@ -1718,7 +1956,53 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
 
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("Totalling_Minus")
+
+            ' Rename the existing column name to value
+            For i = 0 To COA.Columns.Count - 1
+                COA.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = COA.Columns.Count To 25
+                COA.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = COA.NewRow()
+            excelheader("value0") = "Account No"
+            excelheader("value1") = "Name"
+            excelheader("value2") = "Currency"
+            excelheader("value3") = "Balance"
+            COA.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To COA.Columns.Count - 1
+                COA.Rows(0)(i) = "<b>" & COA.Rows(0)(i).ToString & "</b>"
+            Next
+
+            ' Account No
+            If Request.Form("Ac") <> "on" Then
+                COA.Columns.Remove("value0")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            RPT_Excel.DataSource = COA
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
     Private Sub XMLBalance()
         Dim AsAt As String = Request.Form("date1")
@@ -1875,8 +2159,8 @@ Partial Class AjaxPrinting
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("BeforeBalance") = Math.Round(Val(COA.Rows(i)("BeforeBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("BeforeBalance") = Math.Round(Val(COA.Rows(i)("BeforeBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -1982,9 +2266,9 @@ Partial Class AjaxPrinting
         Conn.Open()
 
         If Language = 0 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
         ElseIf Language = 1 Then
-            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
+            SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling, Active, Cash, COALESCE(ThisDateBalance,0.00) AS Balance, Transaction_No,COALESCE(NextDateBalance,0.00) AS NextDateBalance, Memo,memo2,ISNULL(creditSum,0) as Credit,ISNULL(debitSum,0) as Debit, ISNULL((creditSum - debitSum),0) as NetActivity From ACC_GL_Accounts outer apply(select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance,Memo as memo2 from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select sum(Credit_Amount) as creditSum, sum(Debit_Amount) as debitSum from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @endDate and @date)  as Summary outer apply(select top 1 (Balance) as NextDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <= @endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type != 99 and Account_Type != 98 order by Account_No;"
         End If
         SQLCommand.Parameters.Clear()
         SQLCommand.Parameters.AddWithValue("@enddate", DatStart)
@@ -2033,8 +2317,8 @@ Partial Class AjaxPrinting
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -2204,9 +2488,9 @@ Partial Class AjaxPrinting
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString) / 5) * 5
-                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("Credit_Amount") = Math.Round(Val(COA.Rows(i)("Credit_Amount").ToString))
+                    COA.Rows(i)("Debit_Amount") = Math.Round(Val(COA.Rows(i)("Debit_Amount").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -2314,7 +2598,7 @@ Partial Class AjaxPrinting
         For i = 0 To monthDifference
             tempDate = DatStart.AddMonths(i)
             dateArray(i) = tempDate.ToString("yyyy-MM-dd")
-            sqlInsert = sqlInsert + "outer apply(select top 1 (Balance) as Month" & i & "Balance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <=@date" & i & " order by Transaction_Date desc, rowID desc)  as Month" & i & " "
+            sqlInsert = sqlInsert + "outer apply(select top 1 (Balance) as Month" & i & "Balance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <=@date" & i & " order by Transaction_Date desc, rowID desc)  as Month" & i & " "
             sqlInsertHeaders = sqlInsertHeaders + ", CONVERT(varchar(100), Month" & i & "Balance) as " + monthArray(Month(tempDate) - 1) + ""
 
         Next
@@ -2326,7 +2610,7 @@ Partial Class AjaxPrinting
 
         Conn.Open()
         SQLCommand.CommandTimeout = 500
-        SQLCommand.CommandText = "Select Totalling,Totalling_Minus,Account_Type,Account_No, Name, Totalling_Minus " + sqlInsertHeaders + " From [AXIOMGROUP].[dbo].[ACC_GL_Accounts] outer apply( select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @dateStart AND @dateEnd order by Transaction_Date desc, rowID desc) as tid " + sqlInsert + "WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 order by Account_No"
+        SQLCommand.CommandText = "Select Totalling,Totalling_Minus,Account_Type,Account_No, Name, Totalling_Minus " + sqlInsertHeaders + " From ACC_GL_Accounts outer apply( select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @dateStart AND @dateEnd order by Transaction_Date desc, rowID desc) as tid " + sqlInsert + "WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 order by Account_No"
         SQLCommand.Parameters.Clear()
 
         For i = 0 To monthDifference
@@ -2385,7 +2669,7 @@ Partial Class AjaxPrinting
             For i = 0 To monthDifference
                 tempDate = DatStart.AddMonths(i)
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(a)(monthArray(Month(tempDate) - 1)) = Math.Round(Val(COA.Rows(a)(monthArray(Month(tempDate) - 1)).ToString) / 5) * 5
+                    COA.Rows(a)(monthArray(Month(tempDate) - 1)) = Math.Round(Val(COA.Rows(a)(monthArray(Month(tempDate) - 1)).ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(a)(monthArray(Month(tempDate) - 1)).ToString)) / Denom
@@ -2470,7 +2754,7 @@ Partial Class AjaxPrinting
 
         Conn.Open()
 
-        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, ThisDateBalance AS Balance, Totalling_Minus, Exchange_Account_ID, Transaction_No,NextDateBalance From [AXIOMGROUP].[dbo].[ACC_GL_Accounts] outer apply(select top 1 * from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <=@date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select top 1 (Balance) as NextDateBalance from [AXIOMGROUP].[dbo].[ACC_GL] where fk_Account_ID=Account_ID and Transaction_Date <=@endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 order by Account_No;"
+        SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash, ThisDateBalance AS Balance, Totalling_Minus, Exchange_Account_ID, Transaction_No,NextDateBalance From ACC_GL_Accounts outer apply(select top 1 * from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date BETWEEN @date AND @endDate order by Transaction_Date desc, rowID desc) as tid outer apply(select top 1 (Balance) as ThisDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <=@date order by Transaction_Date desc, rowID desc )  as ThisDateTotal outer apply(select top 1 (Balance) as NextDateBalance from ACC_GL where fk_Account_ID=Account_ID and Transaction_Date <=@endDate order by Transaction_Date desc, rowID desc)  as NextDateTotal WHERE Account_Type >=  0 and Account_ID > 1 and Account_No >= 40000 order by Account_No;"
         SQLCommand.Parameters.Clear()
         SQLCommand.Parameters.AddWithValue("@date", DatStart)
         SQLCommand.Parameters.AddWithValue("@enddate", DatSecond)
@@ -2489,8 +2773,8 @@ Partial Class AjaxPrinting
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -2666,9 +2950,6 @@ Partial Class AjaxPrinting
 
         COA.Columns("BalanceString").ColumnName = "Beginning_Balance"
         COA.Columns("NextDateBalanceString").ColumnName = "Closing_Balance"
-        'DataTable.Columns["Marks"].ColumnName = "SubjectMarks";
-        'DataTable.Columns["Marks"].ColumnName = "SubjectMarks";
-        '    DataTable.Columns["Marks"].ColumnName = "SubjectMarks";
 
         Dim ds As New DataSet
         ds.Tables.Add(COA)
@@ -2704,6 +2985,14 @@ Partial Class AjaxPrinting
         DetailLevel = Request.Form("detailLevel")
         Dim Denom As Int32 = Request.Form("Denom")
         Dim DenomString As String = ""
+
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         If (Denom > 1) Then
             If Language = 0 Then
                 If Denom = 10 Then
@@ -2739,22 +3028,28 @@ Partial Class AjaxPrinting
         End Try
 
         If Acc_No = "on" Then
-            HF_Acc = "Act No"
+            HF_Acc = "width:60px; font-size:8pt~Act No"
+        Else
+            HF_Acc = "width:0px; font-size:0pt~"
         End If
 
         ' Translate the Header and Title
         If Language = 0 Then
             If Percentage = "on" Then
-                HF_Pre = "Sales/Expenses(%)"
+                HF_Pre = "text-align:right; width:160px; font-size:8pt~Sales/Expenses(%)"
+            Else
+                HF_Pre = "text-align:right; width:0px; font-size:0pt~"
             End If
-            HF_PrintHeader.Value = "text-align:left; width:60px; font-size:8pt~" & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Account Description~text-align:right; width:120px; font-size:8pt~Dollar Amount~text-align:right; width:160px; font-size:8pt~" & HF_Pre & "~text-align:centre; width:70px;  font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Income Statement " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "text-align:left; " & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Account Description~text-align:right; width:120px; font-size:8pt~Dollar Amount~" & HF_Pre & "~text-align:centre; width:0px; font-size:0pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Income Statement " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             If Percentage = "on" Then
-                HF_Pre = "Ventas/Gastos(%)"
+                HF_Pre = "text-align:right; width:160px; font-size:8pt~Ventas/Gastos(%)"
+            Else
+                HF_Pre = "text-align:right; width:0px; font-size:0pt~"
             End If
-            HF_PrintHeader.Value = "text-align:left; width:60px; font-size:8pt~" & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Descripción De Cuenta~text-align:right; width:120px; font-size:8pt~Monto En Dólares~text-align:right; width:160px; font-size:8pt~" & HF_Pre & "~text-align:centre; width:70px;  font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado De Resultados " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintHeader.Value = "text-align:left; " & HF_Acc & "~text-align:left; width:350px; font-size:8pt~Descripción De Cuenta~text-align:right; width:120px; font-size:8pt~Monto En Dólares~" & HF_Pre & "~text-align:centre; width:0px; font-size:0pt~"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado De Resultados " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         Dim COA, Bal1, Bal2, Report As New DataTable
@@ -2799,16 +3094,16 @@ Partial Class AjaxPrinting
         COA.Columns.Add("Level", GetType(Integer))
         COA.Columns.Add("BalanceString", GetType(String))
         COA.Columns.Add("Dollar_Difference", GetType(Decimal))
+        COA.Columns.Add("DifferenceString", GetType(String))
         COA.Columns.Add("Percent_Difference", GetType(String))
         COA.Columns.Add("Percent_DifferenceString", GetType(String))
-        COA.Columns.Add("DifferenceString", GetType(String))
 
         'Denomination And rounding
         If Denom > 1 Or Request.Form("Round") = "on" Then
             For i = 0 To COA.Rows.Count - 1
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString) / 5) * 5
-                    'COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString) / 5) * 5
+                    COA.Rows(i)("Balance") = Math.Round(Val(COA.Rows(i)("Balance").ToString))
+                    'COA.Rows(i)("NextDateBalance") = Math.Round(Val(COA.Rows(i)("NextDateBalance").ToString))
                 End If
                 If Denom > 1 Then
                     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
@@ -2855,8 +3150,6 @@ Partial Class AjaxPrinting
             For ii = 0 To COA.Rows.Count - 1
                 If COA.Rows(ii)("Account_No") = Account Then COA.Rows(ii)("Balance") = Total
             Next
-
-
         Next
 
         ' Get the value for Total Income, Total Cost, and Total Expenses
@@ -2991,7 +3284,7 @@ Partial Class AjaxPrinting
                 Per_Style = "text-align:right;font-size:8pt;width: 10px;"
             End If
 
-            Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("DifferenceString") + "</span>", Per_Style, COA.Rows(i)("Percent_Difference"), "font-size:8pt; width:100px", COA.Rows(i)("fk_Currency_id"), "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+            Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("DifferenceString") + "</span>", Per_Style, COA.Rows(i)("Percent_Difference"), "font-size:0pt; width:0px", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
         Next
         ProfitAndLoss = Convert.ToDecimal(TotalIncome) - Convert.ToDecimal(TotalCost) - Convert.ToDecimal(TotalExpenses)
         ProfitAndLoss = Format(Val(ProfitAndLoss.ToString), "$#,###.00")
@@ -3005,7 +3298,7 @@ Partial Class AjaxPrinting
         Style = Style & "padding-bottom:0px;"
         Style2 = "text-align:right; font-size:8pt; min-width: 1.5in; max-width: 1.5in; padding: 0px 0px 0px 0px; font-weight:bold;border-top: px solid black;"
 
-        Report.Rows.Add(" text-align:left; font-size:0pt; width: 10px;", "", Style, "PROFIT/LOSS", Style2, "<span style=""" + StyleFinish + """>" + ProfitAndLoss + "</span>", "font-size:8pt; width:50px ;text-align:right ", "", "font-size:8pt; width:100px", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+        Report.Rows.Add(" text-align:left; font-size:0pt; width: 10px;", "", Style, "PROFIT/LOSS", Style2, "<span style=""" + StyleFinish + """>" + ProfitAndLoss + "</span>", "font-size:8pt; width:0px ;text-align:right ", "", "font-size:0pt; width:0px", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
         RPT_PrintReports.DataSource = Report
         RPT_PrintReports.DataBind()
 
@@ -3013,6 +3306,73 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString")
+            COA.Columns.Remove("Dollar_Difference")
+            COA.Columns.Remove("Percent_DifferenceString")
+            COA.Columns.Remove("Balance")
+
+            ' Adding Total Profit and Loss
+            COA.Rows.Add("", "PROFIT AND LOSS", "", ProfitAndLoss, "")
+
+            ' Rename the existing column name to value
+            For i = 0 To COA.Columns.Count - 1
+                COA.Columns(i).ColumnName = "value" + i.ToString()
+            Next
+
+            ' Creating new column to value20
+            For i = COA.Columns.Count To 25
+                COA.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the header as "value"
+            Dim excelheader = COA.NewRow()
+            excelheader("value0") = "Account No"
+            excelheader("value1") = "Name"
+            excelheader("value2") = "Currency"
+            excelheader("value3") = "Balance"
+            excelheader("value4") = "Percentage"
+            COA.Rows.InsertAt(excelheader, 0)
+
+            ' Bold the header.
+            For i = 0 To COA.Columns.Count - 1
+                COA.Rows(0)(i) = "<b>" & COA.Rows(0)(i).ToString & "</b>"
+            Next
+
+            ' Percentage
+            If Percentage <> "on" Then
+                COA.Columns.Remove("value4")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            ' Account No
+            If Request.Form("Ac") <> "on" Then
+                COA.Columns.Remove("value0")
+                ' Rename the header so the cell shifted to value0
+                For i = 0 To COA.Columns.Count - 1
+                    COA.Columns(i).ColumnName = "value" + i.ToString()
+                Next
+            End If
+
+            RPT_Excel.DataSource = COA
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Income Statement Multiperiod Monthly
@@ -3044,12 +3404,27 @@ Partial Class AjaxPrinting
         Dim Bal0, Bal1, Bal2 As Decimal
         Dim MonthCount As Integer
 
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         ' Get the MonthCount Value
         Try
-            MonthCount = Request.Form("SecondDate").Substring(5, 2) - Request.Form("FirstDate").Substring(5, 2)
+            startDate = firstDate
+            endDate = seconDate
+            While startDate <> endDate
+                startDate = startDate.AddMonths(1)
+                MonthCount += 1
+                'MonthCount = Convert.ToInt32(Request.Form["SecondDate"].Substring(5, 2)) - Convert.ToInt32(Request.Form["FirstDate"].Substring(5, 2));
+            End While
         Catch ex As Exception
             MonthCount = 0
         End Try
+
+        Dim Profitloss(MonthCount) As String
 
         ' Denomination
         If (Denom > 1) Then
@@ -3128,10 +3503,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left;font-size:8pt" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Account Description" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Monthly) " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Multiperiod Income Statement(Monthly) " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left;font-size:8pt" & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align: Right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Desde " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         Dim COA, Report As New DataTable
@@ -3142,7 +3517,6 @@ Partial Class AjaxPrinting
         Conn.Open()
 
         startDate1 = startDate.ToString("yyyy-MM-dd")
-
 
         For i = 0 To MonthCount
             ' Check to it compare partial with partial
@@ -3201,7 +3575,7 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
                     If Denom > 1 Then
                         Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
@@ -3248,18 +3622,20 @@ Partial Class AjaxPrinting
             Next
 
             ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
 
             COA.AcceptChanges()
         Next
@@ -3333,13 +3709,13 @@ Partial Class AjaxPrinting
             COA.AcceptChanges()
             ' Format all the output for the paper
 
-            COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
-
-            If Left(COA.Rows(i)("Total").ToString, 1) = "-" Then COA.Rows(i)("Total") = "(" & COA.Rows(i)("Total").replace("-", "") & ")"
-
             If Request.Form("Round") = "on" Then
                 COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###")
+            Else
+                COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
             End If
+
+            If Left(COA.Rows(i)("Total").ToString, 1) = "-" Then COA.Rows(i)("Total") = "(" & COA.Rows(i)("Total").replace("-", "") & ")"
 
             If COA.Rows(i)("Total").ToString = "$.00" Or COA.Rows(i)("Total").ToString = "$" Then COA.Rows(i)("Total") = ""
 
@@ -3393,8 +3769,12 @@ Partial Class AjaxPrinting
                 Profitloss0 = Convert.ToDecimal(rowIncome(0).Item("Balance0")) - Convert.ToDecimal(rowCost(0).Item("Balance0")) - Convert.ToDecimal(rowExpense(0).Item("Balance0"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
+
+                'If Request.Form("Round") = "on" Then
+                '    TotalProfitloss = Math.Round(Val(TotalProfitloss.ToString))
+                'End If
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -3411,10 +3791,9 @@ Partial Class AjaxPrinting
                 Profitloss0 = Convert.ToDecimal(rowIncome(0).Item("Balance0")) - Convert.ToDecimal(rowCost(0).Item("Balance0")) - Convert.ToDecimal(rowExpense(0).Item("Balance0"))
                 Profitloss1 = Convert.ToDecimal(rowIncome(0).Item("Balance1")) - Convert.ToDecimal(rowCost(0).Item("Balance1")) - Convert.ToDecimal(rowExpense(0).Item("Balance1"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1)
-
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -3437,10 +3816,10 @@ Partial Class AjaxPrinting
                 Profitloss2 = Convert.ToDecimal(rowIncome(0).Item("Balance2")) - Convert.ToDecimal(rowCost(0).Item("Balance2")) - Convert.ToDecimal(rowExpense(0).Item("Balance2"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1) + Convert.ToDecimal(Profitloss2)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -3471,9 +3850,98 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export Function
+        If Request.Form("expStat") = "on" Then
+
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the total
+            Dim excelTotal = exportTable.NewRow()
+            excelTotal("value1") = "Profit/Loss"
+            For i = 0 To MonthCount
+                Profitloss(i) = Convert.ToDecimal(rowIncome(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowCost(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowExpense(0).Item("Balance" + i.ToString))
+                excelTotal("value" + (i + 2).ToString) = Profitloss(i)
+            Next
+
+            exportTable.Rows.Add(excelTotal)
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To MonthCount
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i As Integer = 0 To MonthCount
+                excelHeader("value" + (i + 2).ToString()) = startDate.AddMonths(i).ToString("MMMM") + Asterix
+                'If i = MonthCount Then
+                '    excelHeader("value" + (i + 3).ToString()) = "Total"
+                'End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
 
     End Sub
-
 
     ' Income Statement Multiperiod Month-to-Month
     Private Sub PrintMonthToMonthIncStateMultiPer()
@@ -3485,7 +3953,6 @@ Partial Class AjaxPrinting
         Dim Acc_No As String = Request.Form("Ac")
         Dim DetailLevel As Integer = Request.Form("detailLevel")
         Dim Denom As Int32 = Request.Form("Denom")
-
 
         Dim Query1 As String = ""
         Dim Query2 As String = ""
@@ -3503,6 +3970,13 @@ Partial Class AjaxPrinting
         Dim Date2 As String
         Dim endDate As Date = seconDate.ToString
 
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         startDate1 = endDate.AddYears(-(Goback - 1)).ToString("yyyy-MM-dd")
 
         If endDate.ToString("yyyy-MM") = Now().ToString("yyyy-MM") Then
@@ -3513,7 +3987,6 @@ Partial Class AjaxPrinting
 
         Date1 = endDate.AddYears(-(Goback - 1)).ToString("MMMM yyyy")
 
-
         Dim StyleFinish As String = ""
 
         Dim DenomString As String = ""
@@ -3521,6 +3994,7 @@ Partial Class AjaxPrinting
         Dim Profitloss1 As String = ""
         Dim Profitloss2 As String = ""
         Dim TotalProfitloss As String = ""
+        Dim Profitloss(Goback - 1) As String
 
         Dim Bal0 As Decimal
         Dim Bal1 As Decimal
@@ -3627,10 +4101,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Income Statement(Month To Month) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Income Statement(Month To Month) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para  " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para  " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         Dim COA, Report As New DataTable
@@ -3645,13 +4119,6 @@ Partial Class AjaxPrinting
         startDate2 = startDate1
         endDate2 = endDate1
 
-        'Dim d1 As String = "2016-02-01"
-        'Dim d2 As String = "2016-02-28"
-        'Dim d11 As String = "2016-03-01"
-        'Dim d22 As String = "2016-03-31"
-
-        'Query1 = Query1 + ", ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID) - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID)) as Balance0, ((Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID) - (Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID)) as Balance1"
-        'Query2 = Query2 + ", ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID) - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d1 & "' and '" & d2 & "' and fk_Account_Id = Account_ID)) as Balance0, ((Select Sum(Debit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID) - (Select Sum(Credit_Amount) from ACC_GL where Transaction_Date Between '" & d11 & "' and '" & d22 & "' and fk_Account_Id = Account_ID)) as Balance1"
 
         For j = 0 To Goback - 1
 
@@ -3705,7 +4172,7 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
                     If Denom > 1 Then
                         Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
@@ -3752,18 +4219,20 @@ Partial Class AjaxPrinting
             Next
 
             ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
 
             COA.AcceptChanges()
         Next
@@ -3845,12 +4314,13 @@ Partial Class AjaxPrinting
             'COA.Rows(i)("Per") = FormatPercent(Val(COA.Rows(i)("Per").ToString), , TriState.True)
             'Format(Val(COA.Rows(i)("Per").ToString), "00.##%")
             'COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##.00") + "%"
+            Dim style_per As String
 
             If Left(COA.Rows(i)("Per").ToString, 1) = "-" Then COA.Rows(i)("Per") = "(" & COA.Rows(i)("Per").replace("-", "") & ")"
 
-            If Request.Form("Round") = "on" Then
-                COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
-            End If
+            'If Request.Form("Round") = "on" Then
+            '    COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
+            'End If
 
             If COA.Rows(i)("Per").ToString = "0.##%" Or COA.Rows(i)("Per").ToString = "%" Then COA.Rows(i)("Per") = ""
 
@@ -3876,21 +4346,22 @@ Partial Class AjaxPrinting
             If Acc_No = "on" Then
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
-            Dim style_per = Style2
+
 
             If Show_Per = "on" Then
                 style_per = Style2
-            Else
-                style_per = "padding: 0px 0px 0px 0px; text-align:right; font-size:0pt; min-width: 0px; max-width: 0px;"
+                If (Left(COA.Rows(i)("Per").ToString, 1) = "(") Then
+                    style_per = style_per & "color: red !important;"
+                End If
             End If
 
             If j = 1 Then
-                'Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf j = 2 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", style_per, "<span style=""" + StyleFinish + """ > " + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf j = 3 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
+
 
         Next
 
@@ -3913,14 +4384,16 @@ Partial Class AjaxPrinting
                 Profitloss0 = Convert.ToDecimal(rowIncome(0).Item("Balance0")) - Convert.ToDecimal(rowCost(0).Item("Balance0")) - Convert.ToDecimal(rowExpense(0).Item("Balance0"))
                 Profitloss1 = Convert.ToDecimal(rowIncome(0).Item("Balance1")) - Convert.ToDecimal(rowCost(0).Item("Balance1")) - Convert.ToDecimal(rowExpense(0).Item("Balance1"))
 
-                'Profitloss0 = (Convert.ToDecimal(rowIncome(0).Item("Balance0")))
-                'Profitloss1 = (Convert.ToDecimal(rowIncome(0).Item("Balance1")))
                 TotalProfitloss = (((Profitloss1 - Profitloss0) / Profitloss0) * 100).ToString
-                'TotalProfitloss = ((((Convert.ToDecimal(rowIncome(0).Item("Balance1"))) - (Convert.ToDecimal(rowIncome(0).Item("Balance0")))) / (Convert.ToDecimal(rowIncome(0).Item("Balance0")))) * 100).ToString
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                If Show_Per = "on" Then
+
+                    TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Else
+                    TotalProfitloss = ""
+                End If
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -3944,10 +4417,15 @@ Partial Class AjaxPrinting
                 'TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1) + Convert.ToDecimal(Profitloss2)
                 TotalProfitloss = (((Profitloss2 - Profitloss0) / Profitloss0) * 100).ToString
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.00")
-                TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.##")
+                If Show_Per = "on" Then
+
+                    TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Else
+                    TotalProfitloss = ""
+                End If
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -3977,6 +4455,96 @@ Partial Class AjaxPrinting
         Conn.Close()
 
         PNL_PrintReports.Visible = True
+
+        'Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the total
+            Dim excelTotal = exportTable.NewRow()
+            excelTotal("value1") = "Profit/Loss"
+            For i = 0 To Convert.ToInt32(Goback) - 1
+                Profitloss(i) = Convert.ToDecimal(rowIncome(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowCost(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowExpense(0).Item("Balance" + i.ToString))
+                excelTotal("value" + (i + 2).ToString) = Profitloss(i)
+            Next
+
+            exportTable.Rows.Add(excelTotal)
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Convert.ToInt32(Goback) - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To Convert.ToInt32(Goback) - 1
+                excelHeader("value" + (i + 2).ToString) = endDate.AddYears(i - (Goback - 1)).ToString("MMMM yyyy")
+                If i = Convert.ToInt32(Goback) - 1 Then
+                    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Income Statement Multiperiod Quarterly
@@ -4063,10 +4631,8 @@ Partial Class AjaxPrinting
         DataAdapter.SelectCommand = SQLCommand
         Conn.Open()
 
-
-
         ' Getting the fiscal year
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
@@ -4186,6 +4752,7 @@ Partial Class AjaxPrinting
             Q += 1
         End If
 
+        Dim Profitloss(Q) As String
         Dim H_Quarter, H_Qua_1 As String
         Dim HF_Acc As String = ""
         Dim Temp As Integer
@@ -4222,10 +4789,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Quarterly) " + DenomString + "<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Multiperiod Income Statement(Quarterly) " + DenomString + "<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; width:50 px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Trimestral) " + DenomString + "<br/>Para " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Trimestral) " + DenomString + "<br/>Para " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         ' Translate the query
@@ -4275,7 +4842,7 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
                     If Denom > 1 Then
                         Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
@@ -4323,33 +4890,21 @@ Partial Class AjaxPrinting
 
             Next
 
-            ' Get the value for Total Income, Total Cost, and Total Expenses
-            'Dim rowIncome() As DataRow = COA.Select("Account_No = '49999'")
-            'If rowIncome.Length > 0 Then
-            '    TotalIncome = rowIncome(0).Item(Balance)
-            'End If
-            'Dim rowCost() As DataRow = COA.Select("Account_No = '59999'")
-            'If rowCost.Length > 0 Then
-            '    TotalCost = rowCost(0).Item(Balance)
-            'End If
-            'Dim rowExpense() As DataRow = COA.Select("Account_No = '69999'")
-            'If rowExpense.Length > 0 Then
-            '    TotalExpenses = rowExpense(0).Item(Balance)
-            'End If
-
-            ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
+            If Q < 4 Then
+                For i = 0 To COA.Rows.Count - 1
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(BalanceString).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(BalanceString).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
+
 
             COA.AcceptChanges()
             j += 1
@@ -4434,15 +4989,15 @@ Partial Class AjaxPrinting
             COA.AcceptChanges()
             ' Format all the output for the paper
 
-            COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
+            If Request.Form("Round") = "on" Then
+                COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###")
+            Else
+                COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
+            End If
 
             If Left(COA.Rows(i)("Total").ToString, 1) = "-" Then COA.Rows(i)("Total") = "(" & COA.Rows(i)("Total").replace("-", "") & ")"
 
-            'If Request.Form("Round") = "on" Then
-            '    COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###")
-            'Else
-            '    COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
-            'End If
+
 
             If COA.Rows(i)("Total").ToString = "$.00" Or COA.Rows(i)("Total").ToString = "$" Then COA.Rows(i)("Total") = ""
 
@@ -4494,8 +5049,8 @@ Partial Class AjaxPrinting
                 Profitloss0 = Convert.ToDecimal(rowIncome(0).Item("Balance0")) - Convert.ToDecimal(rowCost(0).Item("Balance0")) - Convert.ToDecimal(rowExpense(0).Item("Balance0"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -4513,9 +5068,9 @@ Partial Class AjaxPrinting
                 Profitloss1 = Convert.ToDecimal(rowIncome(0).Item("Balance1")) - Convert.ToDecimal(rowCost(0).Item("Balance1")) - Convert.ToDecimal(rowExpense(0).Item("Balance1"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -4538,10 +5093,10 @@ Partial Class AjaxPrinting
                 Profitloss2 = Convert.ToDecimal(rowIncome(0).Item("Balance2")) - Convert.ToDecimal(rowCost(0).Item("Balance2")) - Convert.ToDecimal(rowExpense(0).Item("Balance2"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1) + Convert.ToDecimal(Profitloss2)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -4572,7 +5127,102 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
 
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the total
+            Dim excelTotal = exportTable.NewRow()
+            excelTotal("value1") = "Profit/Loss"
+            For i = 0 To Q - 1
+                Profitloss(i) = Convert.ToDecimal(rowIncome(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowCost(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowExpense(0).Item("Balance" + i.ToString))
+                excelTotal("value" + (i + 2).ToString) = Profitloss(i)
+            Next
+
+            exportTable.Rows.Add(excelTotal)
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Q - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            Dim count As Integer = 0
+            For i = 0 To Q
+                While (Quarter(i + count) = "" And (i + count) < Quarter.Length - 1)
+                    count += 1
+                End While
+                If Quarter(i + count) <> "" Then
+                    excelHeader("value" + (i + 2).ToString()) = Quarter(i + count) + Asterix
+                End If
+                'If i = Q - 1 Then
+                '    excelHeader("value" + (i + 3).ToString()) = "Total"
+                'End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Income Statement Multiperiod Quarter-to-Quarter
@@ -4589,8 +5239,6 @@ Partial Class AjaxPrinting
         Dim DetailLevel As Integer = Request.Form("detailLevel")
         Dim Denom As Int32 = Request.Form("Denom")
 
-
-
         Dim Quarter(4) As String
 
         Dim Fiscal As New DataTable
@@ -4605,7 +5253,7 @@ Partial Class AjaxPrinting
         Dim d1 As Date
 
         ' Getting the fiscal year
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
@@ -4666,9 +5314,6 @@ Partial Class AjaxPrinting
         S_Date = Qdate1
         E_Date = Qdate2
 
-
-        'S_Date
-        'E_Date =
         Dim Query1 As String = ""
         Dim Query2 As String = ""
         Dim Padding As Integer = 0
@@ -4686,6 +5331,7 @@ Partial Class AjaxPrinting
         Dim Profitloss1 As String = ""
         Dim Profitloss2 As String = ""
         Dim TotalProfitloss As String = ""
+        Dim Profitloss(Goback - 1) As String
 
         Dim Bal0, Bal1, Bal2 As Decimal
 
@@ -4722,32 +5368,32 @@ Partial Class AjaxPrinting
         For j = 0 To Goback - 1
             If Language = 0 Then
                 If S_Date < Now() And E_Date >= Today() Then
-                    Date1 = "Q" & Qua_No & " " & firstDate.ToString("yyyy") & "(*)"
+                    Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2)) & "(*)"
                 Else
-                    Date1 = "Q" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 End If
 
                 If j = (Goback - 1) Then
-                    Date2 = Date2 & " and Q" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date2 = Date2 & " and Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 ElseIf j = (Goback - 2) Then
-                    Date2 = Date2 & "Q" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date2 = Date2 & "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 Else
-                    Date2 = Date2 & "Q" & Qua_No & " " & firstDate.ToString("yyyy") + ", "
+                    Date2 = Date2 & "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2)).ToString() + ", "
                 End If
             End If
             If Language = 1 Then
                 If S_Date < Now() And E_Date >= Today() Then
-                    Date1 = "T" & Qua_No & " " & firstDate.ToString("yyyy") & "(*)"
+                    Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2)) & "(*)"
                 Else
-                    Date1 = "T" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 End If
 
                 If j = (Goback - 1) Then
-                    Date2 = Date2 & " y T" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date2 = Date2 & " y T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 ElseIf j = (Goback - 2) Then
-                    Date2 = Date2 & "T" & Qua_No & " " & firstDate.ToString("yyyy")
+                    Date2 = Date2 & "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2))
                 Else
-                    Date2 = Date2 & "T" & Qua_No & " " & firstDate.ToString("yyyy") + ", "
+                    Date2 = Date2 & "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(Goback) - 2)).ToString() + ", "
                 End If
             End If
 
@@ -4780,10 +5426,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Income Statement(Quarter To Quarter) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Income Statement(Quarter To Quarter) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         Dim COA, Report As New DataTable
@@ -4850,7 +5496,7 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
                     If Denom > 1 Then
                         Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
@@ -4897,18 +5543,21 @@ Partial Class AjaxPrinting
             Next
 
             ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
+
             COA.AcceptChanges()
         Next
         ' End of for loop
@@ -4976,6 +5625,7 @@ Partial Class AjaxPrinting
                 End If
             End If
 
+
             COA.AcceptChanges()
             ' Format all the output for the paper  
             If COA.Rows(i)("Per").ToString <> "" Then
@@ -4984,9 +5634,9 @@ Partial Class AjaxPrinting
 
             If Left(COA.Rows(i)("Per").ToString, 1) = "-" Then COA.Rows(i)("Per") = "(" & COA.Rows(i)("Per").replace("-", "") & ")"
 
-            If Request.Form("Round") = "on" Then
-                COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
-            End If
+            'If Request.Form("Round") = "on" Then
+            '    COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
+            'End If
 
             If COA.Rows(i)("Per").ToString = "0.##%" Or COA.Rows(i)("Per").ToString = "%" Then COA.Rows(i)("Per") = ""
 
@@ -5012,12 +5662,17 @@ Partial Class AjaxPrinting
             If Acc_No = "on" Then
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
-            Dim style_per = Style2
+            Dim style_per As String
+
+
 
             If Show_Per = "on" Then
                 style_per = Style2
-            Else
-                style_per = "padding: 0px 0px 0px 0px; text-align:right; font-size:0pt; min-width: 0px; max-width: 0px;"
+
+                If (Left(COA.Rows(i)("Per").ToString, 1) = "(") Then
+                    style_per = style_per & "color: red !important;"
+
+                End If
             End If
 
             If j = 1 Then
@@ -5054,9 +5709,15 @@ Partial Class AjaxPrinting
                 TotalProfitloss = (((Profitloss1 - Profitloss0) / Profitloss0) * 100).ToString
                 'TotalProfitloss = ((((Convert.ToDecimal(rowIncome(0).Item("Balance1"))) - (Convert.ToDecimal(rowIncome(0).Item("Balance0")))) / (Convert.ToDecimal(rowIncome(0).Item("Balance0")))) * 100).ToString
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                If Show_Per = "on" Then
+
+                    TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Else
+                    TotalProfitloss = ""
+                End If
+
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -5080,10 +5741,15 @@ Partial Class AjaxPrinting
                 'TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1) + Convert.ToDecimal(Profitloss2)
                 TotalProfitloss = (((Profitloss2 - Profitloss0) / Profitloss0) * 100).ToString
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.00")
-                TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.##")
+                If Show_Per = "on" Then
+
+                    TotalProfitloss = (Math.Round(Val(TotalProfitloss.ToString), 2)).ToString() & "%"
+                Else
+                    TotalProfitloss = ""
+                End If
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -5114,8 +5780,112 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
-    End Sub
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+            ' Create new Datatable
+            Dim exportTable As New DataTable
 
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the total
+            Dim excelTotal = exportTable.NewRow()
+            excelTotal("value1") = "Profit/Loss"
+            For i = 0 To Convert.ToInt32(Goback) - 1
+                Profitloss(i) = Convert.ToDecimal(rowIncome(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowCost(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowExpense(0).Item("Balance" + i.ToString))
+                excelTotal("value" + (i + 2).ToString) = Profitloss(i)
+            Next
+
+            exportTable.Rows.Add(excelTotal)
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Convert.ToInt32(Goback) - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To Convert.ToInt32(Goback) - 1
+                If Language = 0 Then
+                    If S_Date < Now() And E_Date >= Today() Then
+                        Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + i) - (Convert.ToInt32(Goback) - 2)) & "(*)"
+                    Else
+                        Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + i) - (Convert.ToInt32(Goback) - 2))
+                    End If
+                End If
+                If Language = 1 Then
+                    If S_Date < Now() And E_Date >= Today() Then
+                        Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + i) - (Convert.ToInt32(Goback) - 2)) & "(*)"
+                    Else
+                        Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + i) - (Convert.ToInt32(Goback) - 2))
+                    End If
+                End If
+
+                excelHeader("value" + (i + 2).ToString) = Date1
+                If i = Convert.ToInt32(Goback) - 1 Then
+                    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
+
+    End Sub
 
     ' Income Statement Multiperiod Yearly
     Private Sub PrintYearlyIncStateMultiPer()
@@ -5191,8 +5961,9 @@ Partial Class AjaxPrinting
         Dim d1, d2, d3, dtemp As Date
         Dim YearCount As Integer = seconDate - (firstDate - 1)
         Dim HF_Acc As String = ""
+        Dim Asterix As String = ""
         ' Get the fiscal month
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
@@ -5220,7 +5991,6 @@ Partial Class AjaxPrinting
 
         date1 = FiscalDate
 
-
         Dim seconDate1 = seconDate
 
         If seconDate = Now().ToString("yyyy") Then
@@ -5242,6 +6012,7 @@ Partial Class AjaxPrinting
         While (endDate <= seconDate)
             If dtemp.Year >= DateTime.Now.Year Then
                 endDate2 = endDate1.ToString("yyyy") + "(*)"
+                Asterix = "(*)"
             Else
                 endDate2 = endDate1.ToString("yyyy")
             End If
@@ -5273,10 +6044,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Income Statement(Yearly) " + DenomString + "<br/>For " & H_year & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Multiperiod Income Statement(Yearly) " + DenomString + "<br/>For " & H_year & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Descripción De Cuenta" & StyleMonth & "~Text-align:right; width:120px; font-size:8pt~Total"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Anual) " + DenomString + "<br/>Para " & H_year & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Anual) " + DenomString + "<br/>Para " & H_year & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         PNL_Summary.Visible = True
@@ -5352,13 +6123,12 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
                     If Denom > 1 Then
                         Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
                         COA.Rows(i)(Balance) = denominatedValueCurrent
                     End If
-
                 Next
             End If
 
@@ -5396,60 +6166,26 @@ Partial Class AjaxPrinting
                 For ii = 0 To COA.Rows.Count - 1
                     If COA.Rows(ii)("Account_No") = Account Then COA.Rows(ii)(Balance) = Total
                 Next
-
-
             Next
 
-            ' Get the value for Total Income, Total Cost, and Total Expenses
-            'Dim rowIncome() As DataRow = COA.Select("Account_No = '49999'")
-            'If rowIncome.Length > 0 Then
-            '    TotalIncome = rowIncome(0).Item(Balance)
-            'End If
-            'Dim rowCost() As DataRow = COA.Select("Account_No = '59999'")
-            'If rowCost.Length > 0 Then
-            '    TotalCost = rowCost(0).Item(Balance)
-            'End If
-            'Dim rowExpense() As DataRow = COA.Select("Account_No = '69999'")
-            'If rowExpense.Length > 0 Then
-            '    TotalExpenses = rowExpense(0).Item(Balance)
-            'End If
-
-            ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
+            ' Formatting for the paper
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
+
             COA.AcceptChanges()
-            'For i As Integer = COA.Rows.Count - 1 To 0 Step -1
-            '    Dim AlreadyDeleted As Boolean = False
 
-            '    ' Delete the rows that arnt above the detail level 
-            '    If Request.Item("showZeros") = "off" And COA.Rows(i)("Account_Type") < 90 Then
-            '        If COA.Rows(i)(BalanceString).ToString = "" Then
-            '            COA.Rows(i).Delete()
-            '            AlreadyDeleted = True
-            '            'ElseIf COA.Rows(i)("DifferenceString").ToString = "" Then
-            '            '    COA.Rows(i).Delete()
-            '            '    AlreadyDeleted = True
-            '        End If
-
-            '    End If
-            '    If (AlreadyDeleted = False) Then
-            '        If COA.Rows(i)("Level") > DetailLevel Then COA.Rows(i).Delete()
-
-            '    End If
-
-            'Next
-
-            'COA.AcceptChanges()
             j += 1
             startDate = startDate.AddYears(1).ToString("yyyy/MM/dd")
             startDate1 = startDate
@@ -5534,15 +6270,16 @@ Partial Class AjaxPrinting
             COA.AcceptChanges()
             ' Format all the output for the paper
 
-            COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
+            'COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
+            If Request.Form("Round") = "on" Then
+                COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###")
+            Else
+                COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
+            End If
 
             If Left(COA.Rows(i)("Total").ToString, 1) = "-" Then COA.Rows(i)("Total") = "(" & COA.Rows(i)("Total").replace("-", "") & ")"
 
-            'If Request.Form("Round") = "on" Then
-            '    COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###")
-            'Else
-            '    COA.Rows(i)("Total") = Format(Val(COA.Rows(i)("Total").ToString), "$#,###.00")
-            'End If
+
 
             If COA.Rows(i)("Total").ToString = "$.00" Or COA.Rows(i)("Total").ToString = "$" Then COA.Rows(i)("Total") = ""
 
@@ -5571,9 +6308,9 @@ Partial Class AjaxPrinting
 
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf j = 2 Then
-                Report.Rows.Add(" text-align:left; font-size:8pt; width: 10px;", COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             ElseIf j = 3 Then
-                Report.Rows.Add(" text-align:left; font-size:8pt; width: 10px;", COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
+                Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Total") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
 
         Next
@@ -5595,8 +6332,8 @@ Partial Class AjaxPrinting
                 Profitloss0 = Convert.ToDecimal(rowIncome(0).Item("Balance0")) - Convert.ToDecimal(rowCost(0).Item("Balance0")) - Convert.ToDecimal(rowExpense(0).Item("Balance0"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -5614,9 +6351,9 @@ Partial Class AjaxPrinting
                 Profitloss1 = Convert.ToDecimal(rowIncome(0).Item("Balance1")) - Convert.ToDecimal(rowCost(0).Item("Balance1")) - Convert.ToDecimal(rowExpense(0).Item("Balance1"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -5639,10 +6376,10 @@ Partial Class AjaxPrinting
                 Profitloss2 = Convert.ToDecimal(rowIncome(0).Item("Balance2")) - Convert.ToDecimal(rowCost(0).Item("Balance2")) - Convert.ToDecimal(rowExpense(0).Item("Balance2"))
                 TotalProfitloss = Convert.ToDecimal(Profitloss0) + Convert.ToDecimal(Profitloss1) + Convert.ToDecimal(Profitloss2)
 
-                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.00")
-                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.00")
-                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.00")
-                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.00")
+                Profitloss0 = Format(Val(Profitloss0.ToString), "$#,###.##")
+                Profitloss1 = Format(Val(Profitloss1.ToString), "$#,###.##")
+                Profitloss2 = Format(Val(Profitloss2.ToString), "$#,###.##")
+                TotalProfitloss = Format(Val(TotalProfitloss.ToString), "$#,###.##")
 
                 ' Check ProfitAndLoss Value negative or positive
                 If Left(Profitloss0.ToString, 1) = "-" Then
@@ -5672,6 +6409,99 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            Dim Profitloss(Q) As String
+
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Add the total
+            Dim excelTotal = exportTable.NewRow()
+            excelTotal("value1") = "Profit/Loss"
+            For i = 0 To Q - 1
+                Profitloss(i) = Convert.ToDecimal(rowIncome(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowCost(0).Item("Balance" + i.ToString)) - Convert.ToDecimal(rowExpense(0).Item("Balance" + i.ToString))
+                excelTotal("value" + (i + 2).ToString) = Profitloss(i)
+            Next
+
+            exportTable.Rows.Add(excelTotal)
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To YearCount - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To YearCount - 1
+                excelHeader("value" + (i + 2).ToString) = (firstDate - 1 + i) & "-" & (firstDate + i) & Asterix
+                'If i = YearCount - 1 Then
+                '    excelHeader("value" + (i + 3).ToString) = "Total"
+                'End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
+
     End Sub
 
     ' Balance Sheet Multiperiod Monthly
@@ -5690,7 +6520,7 @@ Partial Class AjaxPrinting
         Dim j As Integer = 0
         Dim k As Integer = 0
 
-        Dim startDate, firstDate1, seconDate1 As Date
+        Dim startDate, endDate, firstDate1, seconDate1 As Date
         Dim startDate1, Asterix As String
         Dim firstDate As String = Request.Form("FirstDate")
         Dim seconDate As String = Request.Form("SecondDate")
@@ -5700,9 +6530,21 @@ Partial Class AjaxPrinting
 
         Dim MonthCount As Integer
 
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
+
         ' Get the MonthCount Value
         Try
-            MonthCount = Request.Form("SecondDate").Substring(5, 2) - Request.Form("FirstDate").Substring(5, 2)
+            startDate = firstDate
+            endDate = seconDate
+            While startDate <> endDate
+                startDate = startDate.AddMonths(1)
+                MonthCount += 1
+            End While
         Catch ex As Exception
             MonthCount = 0
         End Try
@@ -5787,16 +6629,13 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly) " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>MultiPeriod Balance Sheet(Monthly) " + DenomString + "<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Mensual) " + DenomString + "<br/>De " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Hoja de Balance Multi Período (Mensual) " + DenomString + "<br/>De " & firstDate & " a " & seconDate & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
-        'HF_PrintHeader.Value = "text-align:left; width:75px; font-size:8pt~" & HF_Acc & "~text-align:left; font-size:8pt~Account Name" + StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~"
-
-        'HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>MultiPeriod Balance Sheet(Monthly)<br/>From " & firstDate & " to " & seconDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         Dim COA, DataT, Bal, Bal1, Bal2, Report As New DataTable
         PNL_Summary.Visible = True
@@ -5870,7 +6709,6 @@ Partial Class AjaxPrinting
             RE = 0
             For j = 0 To DataT.Rows.Count - 1
                 For jj = 0 To Bal.Rows.Count - 1
-
                     If DataT.Rows(j)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
                         If DataT.Rows(j)("Account_Type").ToString = "4" And Not IsDBNull(Bal.Rows(jj)(Balance)) Then RE = RE + Bal.Rows(jj)(Balance)
                         If (DataT.Rows(j)("Account_Type").ToString = "5" Or DataT.Rows(j)("Account_Type").ToString = "6") And Not IsDBNull(Bal.Rows(jj)(Balance)) Then RE = RE - Bal.Rows(jj)(Balance)
@@ -5878,7 +6716,6 @@ Partial Class AjaxPrinting
                     End If
                 Next
             Next
-
 
             For i = 0 To COA.Rows.Count - 1
                 For ii = 0 To Bal.Rows.Count - 1
@@ -5888,7 +6725,6 @@ Partial Class AjaxPrinting
                         Exit For
                     End If
                 Next
-
 
                 ' Give Padding
                 If i > 0 Then
@@ -5901,8 +6737,6 @@ Partial Class AjaxPrinting
                 COA.Rows(i)("Level") = Level
                 If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = "<div style='min-width: 0.5in; max-width:0.5in;'></div>" ' hard coded
             Next
-
-
 
             For i = 0 To COA.Rows.Count - 1
                 If COA.Rows(i)("Account_No") = "39000" Then COA.Rows(i)(Balance) = RE
@@ -5935,7 +6769,6 @@ Partial Class AjaxPrinting
                 Next
             Next
 
-
             Total = 0
             Account = ""
             For j = 1 To 2
@@ -5961,47 +6794,31 @@ Partial Class AjaxPrinting
             COA.AcceptChanges()
 
             ' Formating
-            ' Denomination and rounding
-            If Denom > 1 Or Request.Form("Round") = "on" Then
-                For i = 0 To COA.Rows.Count - 1
-                    If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
-                    End If
-                    If Denom > 1 Then
-                        Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
-                        COA.Rows(i)(Balance) = denominatedValue
-                        'Dim denominatedValue2 As Double = Convert.ToDouble(Val(COA.Rows(i)("Balance").ToString)) / Denom
-                        'COA.Rows(i)("BeforeBalance") = denominatedValue2
-                    End If
-                Next
-            End If
-
             For i = 0 To COA.Rows.Count - 1
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
+                ' Denomination and rounding
                 If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                 End If
-
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                If Denom > 1 Then
+                    Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                    COA.Rows(i)(Balance) = denominatedValue
+                End If
             Next
 
-            'COA.AcceptChanges()
+            If k < 3 Then
+                For i = 0 To COA.Rows.Count - 1
+                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
 
-            'If IsDBNull("") Then
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
 
-            '    If NoZeros = "off" Then
-            '        For i = 0 To COA.Rows.Count - 1
-            '            If (COA.Rows(i)(Balance) = "" Or COA.Rows(i)(Balance) = "0") And COA.Rows(i)("Account_Type").ToString < 90 Then COA.Rows(i).Delete()
-            '        Next
-            '    End If
-            'End If
-
-
-
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                Next
+            End If
 
             COA.AcceptChanges()
             k += 1
@@ -6044,8 +6861,6 @@ Partial Class AjaxPrinting
             Report.Columns.Add("Field" + i.ToString, GetType(String))
         Next
 
-        'Dim Style As String = "text-align:left; font-size:8pt; padding: 3px 5px 3px; "
-        'Dim Style2 As String = "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; min-width: 7px; max-width: 7px;"
         Dim Style As String = "text-align:left; font-size:8pt; padding: 3px 5px 3px; "
         Dim Style2 As String = "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; min-width: 5px; max-width: 5px;"
         For i = 0 To COA.Rows.Count - 1
@@ -6082,8 +6897,6 @@ Partial Class AjaxPrinting
 
         Next
 
-
-
         RPT_PrintReports.DataSource = Report
         RPT_PrintReports.DataBind()
 
@@ -6091,13 +6904,91 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            ' Create new Datatable
+            Dim exportTable As New DataTable
 
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+
+                If COA.Rows(i)(0).ToString = "39999" Then
+                    Exit For
+                End If
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To MonthCount
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To MonthCount
+                excelHeader("value" + (i + 2).ToString) = firstDate1.AddMonths(i).ToString("MMMM") + Asterix
+                'If i = MonthCount Then
+                '    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                'End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Balance Sheet Multiperiod Month-to-Month
     Private Sub PrintMonthToMonthBalSheetMultiPer()
-
-
         Dim Language As Integer = Request.Form("language")
         Dim seconDate As String = Request.Form("SecMonth")
         Dim Acc_No As String = Request.Form("Ac")
@@ -6128,6 +7019,12 @@ Partial Class AjaxPrinting
         Dim Bal1 As Decimal
         Dim Bal2 As Decimal
 
+        Dim Fiscal As New DataTable
+
+        ' Getting the fiscal year
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.Parameters.Clear()
+        DataAdapter.Fill(Fiscal)
 
         If endDate.ToString("yyyy-MM") = Now().ToString("yyyy-MM") Then
             endDate1 = Now().AddYears(-(GoPrevious - 1)).ToString("yyyy-MM-dd")
@@ -6140,7 +7037,6 @@ Partial Class AjaxPrinting
         secondDate = endDate1
 
         Dim Fr_Date As DateTime
-
 
         If Language = 0 Then
             For j = 0 To GoPrevious - 1
@@ -6181,7 +7077,6 @@ Partial Class AjaxPrinting
                 Else
                     Date2 = Date2 + "" + Fr_Date.ToString("dd MMMM yyyy") + ", "
                 End If
-
 
                 StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" + StrConv(Fr_Date.ToString("MMMM yyyy"), VbStrConv.ProperCase)
                 endDate2 = secondDate.AddYears(1).ToString("yyyy-MM-dd")
@@ -6228,13 +7123,13 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; font-size:8pt~Account Name" & StyleMonth & "" & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Balance Sheet(Month To Month) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Balance Sheet(Month To Month) " + DenomString + "<br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "" & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
-        Dim COA, Bal, Report, DataT, Fiscal As New DataTable
+        Dim COA, Bal, Report, DataT As New DataTable
 
         PNL_Summary.Visible = True
 
@@ -6252,22 +7147,17 @@ Partial Class AjaxPrinting
 
             endDate2 = secondDate.AddYears(1).ToString("yyyy-MM-dd")
             secondDate = endDate2
-
         Next
 
         If Language = 0 Then
             SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts  WHERE Account_Type >=  0 and Account_ID > 1 order by Account_No"
             SQLCommand.Parameters.Clear()
             DataAdapter.Fill(COA)
-
-
         ElseIf Language = 1 Then
             SQLCommand.CommandText = "Select Account_ID, Account_No, TranslatedName as Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Direct_Posting, fk_Linked_ID, Totalling, Active, Cash " & Query1 & " From ACC_GL_Accounts WHERE Account_Type >=  0 and Account_ID > 1 order by Account_No"
             SQLCommand.Parameters.Clear()
             DataAdapter.Fill(COA)
-
         End If
-
 
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query2 & " from ACC_GL gl1"
         SQLCommand.Parameters.Clear()
@@ -6285,12 +7175,8 @@ Partial Class AjaxPrinting
         COA.Columns.Add("Total", GetType(String))
         COA.Columns.Add("Per", GetType(String))
 
-
-
         Balance = ""
         BalanceString = ""
-
-
 
         For j = 0 To GoPrevious - 1
             Balance = "Balance" + j.ToString
@@ -6299,18 +7185,17 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
-                    If Denom > 1 Then
-                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
-                        COA.Rows(i)(Balance) = denominatedValueCurrent
-                    End If
+                    ' If Denom > 1 Then
+                    '     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                    '     COA.Rows(i)(Balance) = denominatedValueCurrent
+                    ' End If
 
                 Next
             End If
 
             ' Give Padding
-
             For i = 0 To COA.Rows.Count - 1
                 If i > 0 Then
                     If COA.Rows(i - 1)("Account_Type").ToString = "98" Then Padding = Padding + 20 : Level = Level + 1
@@ -6324,20 +7209,15 @@ Partial Class AjaxPrinting
 
             Dim Total As Decimal = 0
             Dim Account As String = ""
-
-
             RE = 0
 
             ' Calculation for Current Retained Earning (39000)
             For i = 0 To DataT.Rows.Count - 1
 
                 For jj = 0 To Bal.Rows.Count - 1
-
-
                     If DataT.Rows(i)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
 
                         If DataT.Rows(i)("Account_Type").ToString = "4" Then
-
                             If Bal.Rows(jj)(Balance).ToString = "" Then
 
                             Else
@@ -6385,32 +7265,38 @@ Partial Class AjaxPrinting
 
             Next
 
-            ' Format all the output for the paper
             For i = 0 To COA.Rows.Count - 1
-
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                If Denom > 1 Then
+                    Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                    COA.Rows(i)(Balance) = denominatedValue
                 End If
-
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-                If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
             Next
 
-            COA.AcceptChanges()
+            ' Format all the output for the paper
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
 
+                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                    If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
+                Next
+            End If
+
+            COA.AcceptChanges()
         Next
 
         ' End of For loop
-
         ' Delete the rows that arnt above the detail level 
         For i = COA.Rows.Count - 1 To 0 Step -1
             Dim AlreadyDeleted As Boolean = False
-
             If Request.Item("showZeros") = "off" And COA.Rows(i)("Account_Type") < 90 Then
                 If j = 1 Then
                     If COA.Rows(i)("BalanceString0") = "" Then
@@ -6431,9 +7317,7 @@ Partial Class AjaxPrinting
             End If
             If (AlreadyDeleted = False) Then
                 If COA.Rows(i)("Level") > DetailLevel Then COA.Rows(i).Delete()
-
             End If
-
         Next i
 
         COA.AcceptChanges()
@@ -6447,9 +7331,7 @@ Partial Class AjaxPrinting
         Dim Style2 As String = "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; min-width: 5px; max-width: 5px;"
 
         'Calculation for Per
-
         For i = 0 To COA.Rows.Count - 1
-
             If COA.Rows(i)("Balance0").ToString = "" Then
                 Bal0 = 0
             ElseIf COA.Rows(i)("Balance0") <> 0 Then
@@ -6479,17 +7361,12 @@ Partial Class AjaxPrinting
                 COA.Rows(i)("Per") = (Math.Round(Val(COA.Rows(i)("Per").ToString), 2)).ToString() & "%"
             End If
 
-            'String.Format("{0:#.##%}", COA.Rows(i)("Per"))
-
-            'COA.Rows(i)("Per") = FormatPercent(Val(COA.Rows(i)("Per").ToString), , TriState.True)
-            'Format(Val(COA.Rows(i)("Per").ToString), "00.##%")
-            'COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##.00") + "%"
 
             If Left(COA.Rows(i)("Per").ToString, 1) = "-" Then COA.Rows(i)("Per") = "(" & COA.Rows(i)("Per").replace("-", "") & ")"
 
-            If Request.Form("Round") = "on" Then
-                COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
-            End If
+            ' If Request.Form("Round") = "on" Then
+            '     COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
+            ' End If
 
             If COA.Rows(i)("Per").ToString = "0.##%" Or COA.Rows(i)("Per").ToString = "%" Then COA.Rows(i)("Per") = ""
 
@@ -6518,12 +7395,14 @@ Partial Class AjaxPrinting
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
 
-            Dim style_per = Style2
+            Dim style_per As String
+
 
             If Show_Per = "on" Then
                 style_per = Style2
-            Else
-                style_per = "padding: 0px 0px 0px 0px; text-align:right; font-size:0pt; min-width: 0px; max-width: 0px;"
+                If (Left(COA.Rows(i)("Per").ToString, 1) = "(") Then
+                    style_per = style_per & "color: red !important;"
+                End If
             End If
 
             If j = 1 Then
@@ -6533,9 +7412,7 @@ Partial Class AjaxPrinting
             ElseIf j = 3 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", Style2, "<span style=""" + StyleFinish + """>" + COA.Rows(i)("Per") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
-
             If COA.Rows(i)("Account_No").ToString = "39999" Then Exit For
-
         Next
 
         RPT_PrintReports.DataSource = Report
@@ -6544,12 +7421,110 @@ Partial Class AjaxPrinting
         Conn.Close()
 
         PNL_PrintReports.Visible = True
-    End Sub
 
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+
+            ' Calculate the Percentage
+            'For i = 0 To COA.Rows.Count - 1
+            '    If COA.Rows(i)("Balance0").ToString = "" Then
+            '        Bal0 = 0
+            '    ElseIf COA.Rows(i)("Balance0") <> 0 Then
+            '        Bal0 = COA.Rows(i)("Balance0")
+            '        If COA.Rows(i)("Balance" & Convert.ToInt32(GoPrevious) - 1).ToString = "" Then
+            '            Bal1 = 0
+            '        Else
+            '            Bal1 = COA.Rows(i)("Balance" & Convert.ToInt32(GoPrevious) - 1)
+            '            COA.Rows(i)("Per") = (((Bal1 - Bal0) / Math.Abs(Bal0)) * 100).ToString
+            '        End If
+            '    End If
+            'Next
+
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+
+                If COA.Rows(i)(0).ToString = "39999" Then
+                    Exit For
+                End If
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Convert.ToInt32(GoPrevious) - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To Convert.ToInt32(GoPrevious) - 1
+                excelHeader("value" + (i + 2).ToString) = endDate.AddYears(i - (GoPrevious - 1)).ToString("MMMM yyyy")
+                If i = Convert.ToInt32(GoPrevious) - 1 Then
+                    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
+    End Sub
 
     ' Balance Sheet Multiperiod Quarterly
     Private Sub PrintQuarterlyBalSheetMultiPer()
-
         Dim Language As Integer = Request.Form("language")
         Dim Query1 As String = ""
         Dim Query2 As String = ""
@@ -6614,7 +7589,6 @@ Partial Class AjaxPrinting
             End If
         End If
 
-
         Dim StyleMonth As String
         Dim Quarter(4) As String
         Dim HF_Acc As String = ""
@@ -6631,14 +7605,13 @@ Partial Class AjaxPrinting
         Dim d1 As Date
 
         ' Getting the fiscal year
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
         If Fiscal.Rows(0)("Fiscal_Year_Start_Month") >= 10 Then
             FiscalDate = (Year - 1) & "-" & Fiscal.Rows(0)("Fiscal_Year_Start_Month").ToString
             d1 = FiscalDate
-
         Else
             FiscalDate = (Year - 1) & "-0" & Fiscal.Rows(0)("Fiscal_Year_Start_Month").ToString
             d1 = FiscalDate
@@ -6751,8 +7724,6 @@ Partial Class AjaxPrinting
             Q += 1
         End If
 
-
-
         Dim H_Quarter, H_Qua_1 As String
         Dim Temp As Integer
 
@@ -6776,7 +7747,6 @@ Partial Class AjaxPrinting
                 End If
                 Temp += 1
             End If
-            'startDate1 = startDate.ToString("yyyy-MM")
         Next
 
         If Acc_No = "on" Then
@@ -6788,13 +7758,11 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Quarterly) " + DenomString + "<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Multiperiod Balance Sheet(Quarterly) " + DenomString + "<br/>For " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; width:5px; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Trimestral) " + DenomString + "<br/>Para " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Hoja de Balance Multi Período (Trimestral) " + DenomString + "<br/>Para " & H_Qua_1 & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
-
-
 
         ' Translation
         If Language = 0 Then
@@ -6837,7 +7805,6 @@ Partial Class AjaxPrinting
         BalanceString = ""
 
         For col = 0 To Q - 1
-
             Balance = "Balance" + k.ToString
             BalanceString = "BalanceString" + k.ToString
             RE = 0
@@ -6846,8 +7813,6 @@ Partial Class AjaxPrinting
             For j = 0 To DataT.Rows.Count - 1
 
                 For jj = 0 To Bal.Rows.Count - 1
-
-
                     If DataT.Rows(j)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
 
                         If DataT.Rows(j)("Account_Type").ToString = "4" Then
@@ -6872,18 +7837,6 @@ Partial Class AjaxPrinting
             Next
 
 
-            If Denom > 1 Or Request.Form("Round") = "on" Then
-                For i = 0 To COA.Rows.Count - 1
-                    If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
-                    End If
-                    If Denom > 1 Then
-                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
-                        COA.Rows(i)(Balance) = denominatedValueCurrent
-                    End If
-
-                Next
-            End If
 
             For i = 0 To COA.Rows.Count - 1
                 For ii = 0 To Bal.Rows.Count - 1
@@ -6893,8 +7846,6 @@ Partial Class AjaxPrinting
                         Exit For
                     End If
                 Next
-
-
 
                 ' Give Padding
                 If i > 0 Then
@@ -6907,16 +7858,11 @@ Partial Class AjaxPrinting
                 COA.Rows(i)("Level") = Level
                 If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = "<div style='min-width: 0.5in; max-width:0.5in;'></div>" ' hard coded
             Next
-            'Denomination And rounding
-
-
 
             For j = 0 To COA.Rows.Count - 1
                 If COA.Rows(j)("Account_No") = "39000" Then COA.Rows(j)(Balance) = RE
                 COA.AcceptChanges()
-
             Next
-
 
             Dim Total As Decimal = 0
             Dim Account As String = ""
@@ -6966,6 +7912,20 @@ Partial Class AjaxPrinting
             Next
             COA.AcceptChanges()
 
+            ' Denomination and Rounding
+            If Denom > 1 Or Request.Form("Round") = "on" Then
+                For i = 0 To COA.Rows.Count - 1
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
+                    End If
+                    If Denom > 1 Then
+                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                        COA.Rows(i)(Balance) = denominatedValueCurrent
+                    End If
+
+                Next
+            End If
+
             ' Format all the output for the paper
             For i = 0 To COA.Rows.Count - 1
                 COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
@@ -6982,7 +7942,6 @@ Partial Class AjaxPrinting
             COA.AcceptChanges()
             k += 1
         Next
-
 
         For i As Integer = COA.Rows.Count - 1 To 0 Step -1
             Dim AlreadyDeleted As Boolean = False
@@ -7007,21 +7966,16 @@ Partial Class AjaxPrinting
             End If
             If (AlreadyDeleted = False) Then
                 If COA.Rows(i)("Level") > DetailLevel Then COA.Rows(i).Delete()
-
             End If
-
         Next
 
         COA.AcceptChanges()
-
 
         'End While
         For i = 1 To 15
             Report.Columns.Add("Style" + i.ToString, GetType(String))
             Report.Columns.Add("Field" + i.ToString, GetType(String))
         Next
-
-
 
         Dim Style As String = "text-align:left; font-size:8pt; padding: 3px 5px 3px; "
         Dim Style2 As String = "padding: 3px 5px 3px 5px; text-align:right; font-size:8pt; min-width: 5px; max-width: 5px;"
@@ -7056,8 +8010,6 @@ Partial Class AjaxPrinting
             ElseIf Q = 3 Then
                 Report.Rows.Add(Ac_Style, COA.Rows(i)("Account_No").ToString, Style, COA.Rows(i)("Name").ToString, Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString0") + "</span>", Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString1") + "</span>", Style2 + "min-width: 1.5in; max-width: 1.5in", "<span style=""" + StyleFinish + """>" + COA.Rows(i)("BalanceString2") + "</span>", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "")
             End If
-
-
         Next
 
         RPT_PrintReports.DataSource = Report
@@ -7067,13 +8019,94 @@ Partial Class AjaxPrinting
 
         PNL_PrintReports.Visible = True
 
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            ' Create new Datatable
+            Dim exportTable As New DataTable
 
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+
+                If COA.Rows(i)(0).ToString = "39999" Then
+                    Exit For
+                End If
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Q
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            Dim count As Integer = 0
+            For i = 0 To Q
+                While (Quarter(i + count) = "" And (i + count) < Quarter.Length - 1)
+                    count += 1
+                End While
+                If Quarter(i + count) <> "" Then
+                    excelHeader("value" + (i + 2).ToString()) = Quarter(i + count) + Asterix
+                End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Balance Sheet Multiperiod Quarter-to-Quarter
     Private Sub PrintQuarterToQuarterBalSheetMultiPer()
-
-
         Dim Language As Integer = Request.Form("language")
         Dim seconDate As String = Request.Form("SecQuarter")
         Dim Acc_No As String = Request.Form("Ac")
@@ -7105,7 +8138,6 @@ Partial Class AjaxPrinting
         Dim Bal1 As Decimal
         Dim Bal2 As Decimal
 
-
         Dim COA, Bal, Report, DataT, Fiscal As New DataTable
 
         PNL_Summary.Visible = True
@@ -7118,15 +8150,13 @@ Partial Class AjaxPrinting
 
         Dim d1 As Date
 
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
-
 
         If Fiscal.Rows(0)("Fiscal_Year_Start_Month") >= 10 Then
             FiscalDate = Qua_Year & "-" & Fiscal.Rows(0)("Fiscal_Year_Start_Month").ToString
             d1 = FiscalDate
-
         Else
             FiscalDate = Qua_Year & "-0" & Fiscal.Rows(0)("Fiscal_Year_Start_Month").ToString
             d1 = FiscalDate
@@ -7175,30 +8205,27 @@ Partial Class AjaxPrinting
             End If
         End If
 
-
         endDate = Qua_date2
         Dim E_date As Date = endDate
         endDate = endDate.AddYears(-(GoPrevious - 1))
         Dim secondDate As Date = endDate
-
-
 
         'Translation for Header
         If Language = 0 Then
             For j = 0 To GoPrevious - 1
 
                 If E_date >= Today() Then
-                    Date1 = "Q" & Qua_No & " " & secondDate.ToString("yyyy") & "(*)"
+                    Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2)) & "(*)"
                 Else
-                    Date1 = "Q" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date1 = "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 End If
 
                 If j = (GoPrevious - 1) Then
-                    Date2 = Date2 & " and Q" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date2 = Date2 & " and Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 ElseIf j = (GoPrevious - 2) Then
-                    Date2 = Date2 & "Q" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date2 = Date2 & "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 Else
-                    Date2 = Date2 & "Q" & Qua_No & " " & secondDate.ToString("yyyy") + ", "
+                    Date2 = Date2 & "Q" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2)).ToString() + ", "
                 End If
 
                 StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" + Date1
@@ -7210,17 +8237,17 @@ Partial Class AjaxPrinting
             For j = 0 To GoPrevious - 1
 
                 If E_date >= Today() Then
-                    Date1 = "T" & Qua_No & " " & secondDate.ToString("yyyy") & "(*)"
+                    Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2)) & "(*)"
                 Else
-                    Date1 = "T" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date1 = "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 End If
 
                 If j = (GoPrevious - 1) Then
-                    Date2 = Date2 & " y T" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date2 = Date2 & " y T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 ElseIf j = (GoPrevious - 2) Then
-                    Date2 = Date2 & "T" & Qua_No & " " & secondDate.ToString("yyyy")
+                    Date2 = Date2 & "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2))
                 Else
-                    Date2 = Date2 & "T" & Qua_No & " " & secondDate.ToString("yyyy") + ", "
+                    Date2 = Date2 & "T" & Qua_No & " " & ((Convert.ToInt32(Qua_Year) + j) - (Convert.ToInt32(GoPrevious) - 2)).ToString() + ", "
                 End If
 
                 StyleMonth = StyleMonth + "~Text-align: Right; width:120px; font-size:8pt~" + Date1
@@ -7273,10 +8300,10 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; font-size:8pt~Account Description" & StyleMonth & "" & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Balance Sheet(Quarter To Quarter) " + DenomString + " <br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Balance Sheet(Quarter To Quarter) " + DenomString + " <br/>For " & Date2 & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt; " & HF_Acc & "~text-align:left; width:50px; font-size:8pt~Descripción De Cuenta" & StyleMonth & "" & Per_opt
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Estado de Resultados de Varios Períodos (Mensual) " + DenomString + "<br/>Para " & Date2 & "<br/></span><span style=""font-size:7pt"">Impreso En " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
 
         ' Getting the Query
@@ -7323,12 +8350,8 @@ Partial Class AjaxPrinting
         COA.Columns.Add("Total", GetType(String))
         COA.Columns.Add("Per", GetType(String))
 
-
-
         Balance = ""
         BalanceString = ""
-
-
 
         For j = 0 To GoPrevious - 1
             Balance = "Balance" + j.ToString
@@ -7337,12 +8360,12 @@ Partial Class AjaxPrinting
             If Denom > 1 Or Request.Form("Round") = "on" Then
                 For i = 0 To COA.Rows.Count - 1
                     If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
                     End If
-                    If Denom > 1 Then
-                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
-                        COA.Rows(i)(Balance) = denominatedValueCurrent
-                    End If
+                    ' If Denom > 1 Then
+                    '     Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                    '     COA.Rows(i)(Balance) = denominatedValueCurrent
+                    ' End If
 
                 Next
             End If
@@ -7363,14 +8386,12 @@ Partial Class AjaxPrinting
             Dim Total As Decimal = 0
             Dim Account As String = ""
 
-
             RE = 0
 
             ' Calculation for Current Retained Earning (39000)
             For i = 0 To DataT.Rows.Count - 1
 
                 For jj = 0 To Bal.Rows.Count - 1
-
 
                     If DataT.Rows(i)("Account_ID").ToString = Bal.Rows(jj)("Account_ID").ToString Then
 
@@ -7423,24 +8444,32 @@ Partial Class AjaxPrinting
 
             Next
 
-            ' Format all the output for the paper
             For i = 0 To COA.Rows.Count - 1
-
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                If Denom > 1 Then
+                    Dim denominatedValue As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                    COA.Rows(i)(Balance) = denominatedValue
                 End If
-
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-                If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
             Next
 
-            COA.AcceptChanges()
+            ' Format all the output for the paper
+            If j < 3 Then
+                For i = 0 To COA.Rows.Count - 1
 
+                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                    If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
+                Next
+            End If
+
+            COA.AcceptChanges()
         Next
 
         ' End of For loop
@@ -7517,17 +8546,11 @@ Partial Class AjaxPrinting
                 COA.Rows(i)("Per") = (Math.Round(Val(COA.Rows(i)("Per").ToString), 2)).ToString() & "%"
             End If
 
-            'String.Format("{0:#.##%}", COA.Rows(i)("Per"))
-
-            'COA.Rows(i)("Per") = FormatPercent(Val(COA.Rows(i)("Per").ToString), , TriState.True)
-            'Format(Val(COA.Rows(i)("Per").ToString), "00.##%")
-            'COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##.00") + "%"
-
             If Left(COA.Rows(i)("Per").ToString, 1) = "-" Then COA.Rows(i)("Per") = "(" & COA.Rows(i)("Per").replace("-", "") & ")"
 
-            If Request.Form("Round") = "on" Then
-                COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
-            End If
+            ' If Request.Form("Round") = "on" Then
+            '     COA.Rows(i)("Per") = Format(Val(COA.Rows(i)("Per").ToString), "##")
+            ' End If
 
             If COA.Rows(i)("Per").ToString = "0.##%" Or COA.Rows(i)("Per").ToString = "%" Then COA.Rows(i)("Per") = ""
 
@@ -7556,12 +8579,14 @@ Partial Class AjaxPrinting
                 Ac_Style = "text-align:left;font-size:8pt;width: 10px;"
             End If
 
-            Dim style_per = Style2
+            Dim style_per As String
+
 
             If Show_Per = "on" Then
                 style_per = Style2
-            Else
-                style_per = "padding: 0px 0px 0px 0px; text-align:right; font-size:0pt; min-width: 0px; max-width: 0px;"
+                If (Left(COA.Rows(i)("Per").ToString, 1) = "(") Then
+                    style_per = style_per & "color: red !important;"
+                End If
             End If
 
             If j = 1 Then
@@ -7582,12 +8607,94 @@ Partial Class AjaxPrinting
         Conn.Close()
 
         PNL_PrintReports.Visible = True
+
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Direct_Posting")
+            COA.Columns.Remove("fk_Linked_ID")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Active")
+            COA.Columns.Remove("Cash")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+            COA.Columns.Remove("Total")
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+
+                If COA.Rows(i)(0).ToString = "39999" Then
+                    Exit For
+                End If
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To Convert.ToInt32(GoPrevious) - 1
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To Convert.ToInt32(GoPrevious) - 1
+                excelHeader("value" + (i + 2).ToString) = endDate.AddYears(i - (GoPrevious - 1)).ToString("MMMM yyyy")
+                If i = Convert.ToInt32(GoPrevious) - 1 Then
+                    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
 
     ' Balance Sheet Multiperiod Yearly
     Private Sub PrintYearlyBalSheetMultiPer()
-
-
         SQLCommand.Connection = Conn
         DataAdapter.SelectCommand = SQLCommand
         Conn.Open()
@@ -7617,7 +8724,7 @@ Partial Class AjaxPrinting
         Dim DenomString As String = ""
 
         Dim RE As Decimal = 0
-        Dim Asterix As String = "0"
+        Dim Asterix As String = ""
 
         If (Denom > 1) Then
             If Language = 0 Then
@@ -7640,7 +8747,7 @@ Partial Class AjaxPrinting
         End If
 
         ' Get the fiscal month
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
@@ -7661,7 +8768,7 @@ Partial Class AjaxPrinting
                 date1 = Now().ToString("yyyy-MM-dd")
                 d1 = date1
                 dtemp = d1
-                Asterix = "1"
+                Asterix = "(*)"
             Else
                 d1 = date1
                 d1 = d1.AddDays(-1)
@@ -7680,6 +8787,8 @@ Partial Class AjaxPrinting
             d2 = d1.AddYears(-1)
             d3 = d2.AddYears(-1)
             dtemp = d3
+        Else
+            dtemp = dtemp.AddYears(-YearCount)
         End If
 
         Dim H_year As String
@@ -7697,12 +8806,11 @@ Partial Class AjaxPrinting
             Else
                 H_year = H_year & dtemp.AddYears(i - 1).ToString("yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy") & ", "
             End If
-            'StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("MMM yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
-            If Asterix = "1" Then
-                StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy") & "(*)"
-            Else
-                StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy")
-            End If
+            'If Asterix = "1" Then
+            '    StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy") & "(*)"
+            'Else
+            StyleMonth = StyleMonth + "~Text-align:right; width:120px; font-size:8pt~" & dtemp.AddYears(i - 1).ToString("yyyy") + "-" & dtemp.AddYears(i).ToString("yyyy") & Asterix
+            'End If
         Next
         If Acc_No = "on" Then
             HF_Acc = "width:60px; ~Act No"
@@ -7713,14 +8821,11 @@ Partial Class AjaxPrinting
         ' Translate the Header and Title
         If Language = 0 Then
             HF_PrintHeader.Value = "Text-align: Left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Account Description" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly) " + DenomString + "<br/>For " & H_year & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Multiperiod Balance Sheet(Yearly) " + DenomString + "<br/>For " & H_year & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         ElseIf Language = 1 Then
             HF_PrintHeader.Value = "Text-align:left; font-size:8pt" & HF_Acc & "~text-align:left; font-size:8pt~Nombre De La Cuenta" + StyleMonth + "~Text-align:right; width:0px; font-size:8pt~"
-            HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Hoja de Balance Multi Período (Anual) " + DenomString + "<br/>Para " & H_year & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
+            HF_PrintTitle.Value = "<span style=""font-size:11pt"">" & Fiscal.Rows(0)("Company_Name").ToString & "<br/>Hoja de Balance Multi Período (Anual) " + DenomString + "<br/>Para " & H_year & "<br/></span><span style=""font-size:7pt"">Impreso el " & Now().ToString("yyyy-MM-dd hh:mm tt") & "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
         End If
-
-        'HF_PrintHeader.Value = "Text-align: Left; width:50px; font-size:8pt~" + HF_Acc & "~text-align:left; width:5px; font-size:8pt~Account Description" + StyleMonth + "~Text-align: Right; width:0px; font-size:8pt~"
-        'HF_PrintTitle.Value = "<span style=""font-size:11pt"">Axiom Plastics Inc<br/>Multiperiod Balance Sheet(Yearly)<br/>From " & (firstDate - 1).ToString + "-" + firstDate & " to " & (secondDate - 1).ToString + "-" + secondDate & "<br/></span><span style=""font-size:7pt"">Printed on " & Now().ToString("yyyy-MM-dd hh:mm tt") & " " + DenomString + "</span><div style='Width: 8.5in; position: absolute;'><span style='position: absolute; margin-left: 6in;'></span><span style='position: absolute; margin-left: 4.3in;'></span><span style='position: absolute; margin-left: 6in'></span><span style='position: absolute; margin-left: 4.3in'></span><span style='position: absolute; margin-left: 7.3in'></span></div>"
 
         PNL_Summary.Visible = True
 
@@ -7740,19 +8845,15 @@ Partial Class AjaxPrinting
             DataAdapter.Fill(COA)
         End If
 
-        'SQLCommand.CommandText = "Select Account_ID, Account_No, Name, ACC_GL_Accounts.fk_Currency_ID, Account_Type, Totalling From ACC_GL_Accounts order by Account_No"
-        'SQLCommand.Parameters.Clear()
-        'DataAdapter.Fill(COA)
-
         SQLCommand.CommandText = "Select Distinct(gl1.fk_Account_ID) as Account_ID" & Query1 & " from ACC_GL gl1"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Bal)
 
         COA.Columns.Add("Padding", GetType(Integer))
         COA.Columns.Add("Level", GetType(Integer))
-        COA.Columns.Add("Balance0", GetType(String))
-        COA.Columns.Add("Balance1", GetType(String))
-        COA.Columns.Add("Balance2", GetType(String))
+        For i = 0 To YearCount
+            COA.Columns.Add("Balance" + i.ToString, GetType(String))
+        Next
         COA.Columns.Add("BalanceString0", GetType(String))
         COA.Columns.Add("BalanceString1", GetType(String))
         COA.Columns.Add("BalanceString2", GetType(String))
@@ -7780,19 +8881,7 @@ Partial Class AjaxPrinting
         For j = 0 To YearCount
             Balance = "Balance" + j.ToString
             BalanceString = "BalanceString" + j.ToString
-            'Denomination And rounding
-            If Denom > 1 Or Request.Form("Round") = "on" Then
-                For i = 0 To COA.Rows.Count - 1
-                    If Request.Form("Round") = "on" Then
-                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString) / 5) * 5
-                    End If
-                    If Denom > 1 Then
-                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
-                        COA.Rows(i)(Balance) = denominatedValueCurrent
-                    End If
 
-                Next
-            End If
 
             Dim Total As Decimal = 0
             Dim Account As String = ""
@@ -7801,7 +8890,6 @@ Partial Class AjaxPrinting
 
             ' calculation for 39000
             For i = 0 To COA.Rows.Count - 1
-
                 ' Calculation for 39000
                 For ii = 0 To Bal.Rows.Count - 1
                     If COA.Rows(i)("Account_ID").ToString = Bal.Rows(ii)("Account_ID").ToString Then
@@ -7841,21 +8929,37 @@ Partial Class AjaxPrinting
 
             Next
 
+            'Denomination And rounding
+            If Denom > 1 Or Request.Form("Round") = "on" Then
+                For i = 0 To COA.Rows.Count - 1
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(Balance) = Math.Round(Val(COA.Rows(i)(Balance).ToString))
+                    End If
+                    If Denom > 1 Then
+                        Dim denominatedValueCurrent As Double = Convert.ToDouble(Val(COA.Rows(i)(Balance).ToString)) / Denom
+                        COA.Rows(i)(Balance) = denominatedValueCurrent
+                    End If
+
+                Next
+            End If
+
             ' Format all the output for the paper
-            For i = 0 To COA.Rows.Count - 1
+            If YearCount < 3 Then
+                For i = 0 To COA.Rows.Count - 1
 
-                COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-
-                If Request.Form("Round") = "on" Then
-                    COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
-                Else
                     COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
-                End If
 
-                If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
-                If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
-                If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
-            Next
+                    If Request.Form("Round") = "on" Then
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###")
+                    Else
+                        COA.Rows(i)(BalanceString) = Format(Val(COA.Rows(i)(Balance).ToString), "$#,###.00")
+                    End If
+
+                    If COA.Rows(i)(BalanceString).ToString = "$.00" Or COA.Rows(i)(BalanceString).ToString = "$" Or COA.Rows(i)(BalanceString).ToString = "$,00" Then COA.Rows(i)(BalanceString) = ""
+                    If Left(COA.Rows(i)(Balance).ToString, 1) = "-" Then COA.Rows(i)(BalanceString) = "(" & COA.Rows(i)(BalanceString).replace("-", "") & ")"
+                    If COA.Rows(i)("fk_Currency_ID").ToString = "CAD" Then COA.Rows(i)("fk_Currency_ID") = ""
+                Next
+            End If
 
             COA.AcceptChanges()
         Next
@@ -7876,7 +8980,7 @@ Partial Class AjaxPrinting
                         COA.Rows(i).Delete()
                         AlreadyDeleted = True
                     End If
-                ElseIf YearCount >= 2 Then
+                ElseIf YearCount = 2 Then
                     If COA.Rows(i)("BalanceString0") = "" And COA.Rows(i)("BalanceString1") = "" And COA.Rows(i)("BalanceString2") = "" Then
                         COA.Rows(i).Delete()
                         AlreadyDeleted = True
@@ -7942,27 +9046,87 @@ Partial Class AjaxPrinting
         Conn.Close()
 
         PNL_PrintReports.Visible = True
+
+        ' Export function
+        If Request.Form("expStat") = "on" Then
+            ' Remove the columns that do not need to be display in excel
+            COA.Columns.Remove("Account_ID")
+            COA.Columns.Remove("fk_Currency_ID")
+            COA.Columns.Remove("Account_Type")
+            COA.Columns.Remove("Totalling")
+            COA.Columns.Remove("Padding")
+            COA.Columns.Remove("Level")
+            COA.Columns.Remove("BalanceString0")
+            COA.Columns.Remove("BalanceString1")
+            COA.Columns.Remove("BalanceString2")
+
+            ' Create new Datatable
+            Dim exportTable As New DataTable
+
+            For i = 0 To COA.Columns.Count
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Copy the data value
+            For i = 0 To COA.Rows.Count - 1
+                Dim excelRow As DataRow = exportTable.NewRow()
+                For ii = 0 To COA.Columns.Count - 1
+                    excelRow("value" + ii.ToString) = COA.Rows(i)(ii).ToString
+                Next
+
+                exportTable.Rows.Add(excelRow)
+
+                If COA.Rows(i)(0).ToString = "39999" Then
+                    Exit For
+                End If
+            Next
+
+            ' Creating new column to value20
+            For i = exportTable.Columns.Count To 25
+                exportTable.Columns.Add("value" + i.ToString, GetType(String))
+            Next
+
+            ' Formatting the value
+            For i = 0 To exportTable.Rows.Count - 1
+                For ii = 0 To YearCount
+                    exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###.00")
+
+                    If Request.Form("Round") = "on" Then
+                        exportTable.Rows(i)("value" + (ii + 2).ToString) = Format(Val(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString), "$#,###")
+                    End If
+
+                    If exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$.00" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$" Or exportTable.Rows(i)("value" + (ii + 2).ToString).ToString = "$,00" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = ""
+                    If Left(exportTable.Rows(i)("value" + (ii + 2).ToString).ToString, 1) = "-" Then exportTable.Rows(i)("value" + (ii + 2).ToString) = "(" & exportTable.Rows(i)("value" + (ii + 2).ToString).replace("-", "") & ")"
+                Next
+
+            Next
+
+            ' Add the header as "value"
+            Dim excelHeader = exportTable.NewRow()
+            excelHeader("value0") = "Account No"
+            excelHeader("value1") = "Account Description"
+
+            ' Add the header with dynamic number of columns
+            For i = 0 To YearCount
+                excelHeader("value" + (i + 2).ToString) = dtemp.AddYears(i - 1).ToString("yyyy") & "-" & dtemp.AddYears(i).ToString("yyyy") & Asterix
+                'If i = YearCount Then
+                '    excelHeader("value" + (i + 3).ToString) = "Growth (%)"
+                'End If
+            Next
+
+            exportTable.Rows.InsertAt(excelHeader, 0)
+
+            ' Bold the header.
+            For i = 0 To exportTable.Columns.Count - 1
+                exportTable.Rows(0)(i) = "<b>" & exportTable.Rows(0)(i).ToString & "</b>"
+            Next
+
+            RPT_Excel.DataSource = exportTable
+            RPT_Excel.DataBind()
+
+            PNL_Excel.Visible = True
+        End If
     End Sub
-
-    'Public Function FirstDayOfQuarter(DateIn As DateTime) As Date
-    '    ' Calculate first day of DateIn quarter,
-    '    ' with quarters starting at the beginning of Jan/Apr/Jul/Oct
-    '    Dim intQuarterNum As Integer = (Month(DateIn) - 1) / 3 + 1
-    '    FirstDayOfQuarter = New DateTime(Year(DateIn), (intQuarterNum - 1) * 3 + 1, 1)
-    '    System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(FirstDayOfQuarter.Month)
-    'End Function
-
-
-    'Public Function LastDayOfQuarter(DateIn As DateTime) As Date
-    '    Dim i As Integer = 0
-    '    ' Calculate last day of DateIn quarter,
-    '    ' with quarters ending at the end of Mar/Jun/Sep/Dec
-    '    Dim intQuarterNum As Integer = (Month(DateIn) - 1) / 3 + 1
-    '    LastDayOfQuarter = New DateTime(Year(DateIn), (intQuarterNum - 1) * 3 - 1, 1)
-
-    '    System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(LastDayOfQuarter.Month)
-
-    'End Function
 
     Private Sub Report()
         Dim Cur, Cust, Vend As New DataTable
@@ -7973,14 +9137,11 @@ Partial Class AjaxPrinting
         'Dim s As String = DDL_Print_Q.SelectedValue
         Dim Q As Int32 = 0
 
-
-
-
         HF_Date_Today.Value = Now().ToString("yyyy-MM-dd")
 
         DDL_Print_Category.Items.Clear()
         DDL_Print_Category.Items.Add(New ListItem("General", "1"))
-        DDL_Print_Category.Items.Add(New ListItem("General-MultiPeriod", "10"))
+        DDL_Print_Category.Items.Add(New ListItem("MultiPeriod", "10"))
         DDL_Print_Category.Items.Add(New ListItem("Sales", "2"))
         DDL_Print_Category.Items.Add(New ListItem("Purchases", "3"))
         DDL_Print_Category.SelectedValue = "1"
@@ -8025,7 +9186,7 @@ Partial Class AjaxPrinting
         Dim d1 As Date
 
         ' Getting the fiscal year
-        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info WHERE Company_ID = 'Plastics'"
+        SQLCommand.CommandText = "SELECT * FROM ACC_Comp_Info"
         SQLCommand.Parameters.Clear()
         DataAdapter.Fill(Fiscal)
 
